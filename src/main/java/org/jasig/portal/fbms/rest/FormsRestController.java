@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST endpoints for accessing and manipulating {@link Form} objects.
+ */
 @RestController
 @RequestMapping(FormsRestController.API_ROOT)
 public class FormsRestController {

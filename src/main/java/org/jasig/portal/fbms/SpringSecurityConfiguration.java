@@ -15,10 +15,18 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import static org.apereo.portal.soffit.service.AbstractJwtService.DEFAULT_SIGNATURE_KEY;
 import static org.apereo.portal.soffit.service.AbstractJwtService.SIGNATURE_KEY_PROPERTY;
 
+/**
+ * Spring Security setup designed to accept OAuth OpenID Connect (OIDC) tokens for access to REST
+ * APIs.  uPortal 5.1 and above is capable of producing compatible tokens (via the
+ * /uPortal/api/v5-1/userinfo URI), but tokens from other services may be used as well.
+ */
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    /**
+     * Must match the key used by the OIDC token provider to sign the JWT.
+     */
     @Value("${" + SIGNATURE_KEY_PROPERTY + ":" + DEFAULT_SIGNATURE_KEY + "}")
     private String signatureKey;
 
