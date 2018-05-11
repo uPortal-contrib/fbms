@@ -1,6 +1,6 @@
-package org.jasig.portal.fbms.rest;
+package org.apereo.portal.fbms.rest;
 
-import org.jasig.portal.fbms.Form;
+import org.apereo.portal.fbms.Form;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

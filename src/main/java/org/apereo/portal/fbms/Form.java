@@ -1,4 +1,4 @@
-package org.jasig.portal.fbms;
+package org.apereo.portal.fbms;
 
 import java.util.UUID;
 

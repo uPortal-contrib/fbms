@@ -1,4 +1,4 @@
-package org.jasig.portal.fbms;
+package org.apereo.portal.fbms;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;

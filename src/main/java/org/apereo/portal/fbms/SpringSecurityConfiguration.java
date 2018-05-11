@@ -1,4 +1,4 @@
-package org.jasig.portal.fbms;
+package org.apereo.portal.fbms;
 
 import org.apereo.portal.soffit.security.SoffitApiAuthenticationManager;
 import org.apereo.portal.soffit.security.SoffitApiPreAuthenticatedProcessingFilter;

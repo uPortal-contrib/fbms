@@ -1,4 +1,4 @@
-package org.jasig.portal.fbms;
+package org.apereo.portal.fbms;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
