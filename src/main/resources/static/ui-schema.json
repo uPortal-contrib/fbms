@@ -1,0 +1,12 @@
+{
+  "channels": {
+    "taco_truck": {
+      "receive": {
+        "ui:widget": "radio"
+      },
+      "locations": {
+        "ui:widget": "checkboxes"
+      }
+    }
+  }
+}
