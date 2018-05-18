@@ -1,4 +1,6 @@
-package org.apereo.portal.fbms;
+package org.apereo.portal.fbms.api.v1;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.UUID;
 
@@ -11,5 +13,7 @@ public interface Form {
     UUID getUuid();
 
     int getVersion();
+
+    JsonNode getSchema();
 
 }
