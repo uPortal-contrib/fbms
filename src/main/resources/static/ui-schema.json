@@ -2,10 +2,16 @@
   "channels": {
     "taco_truck": {
       "receive": {
-        "ui:widget": "radio"
+        "ui:widget": "radio",
+        "ui:options": {
+          "inline": true
+        }
       },
       "locations": {
-        "ui:widget": "checkboxes"
+        "ui:widget": "checkboxes",
+        "ui:options": {
+          "inline": true
+        }
       }
     }
   }
