@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +33,10 @@ public class FormsRestController {
     private Resource jsonSchema;
 
     // TODO:  Remove!
+    @Value("classpath:/static/communication-preferences/ui-schema.json")
+    private Resource uiSchema;
+
+    // TODO:  Remove!
     private Form mockForm;
 
     // TODO:  Remove!
@@ -41,9 +44,14 @@ public class FormsRestController {
     public void mockData() {
 
         final ObjectMapper mapper = new ObjectMapper();
-        try (InputStream inpt = jsonSchema.getInputStream()) {
+        try (
+                InputStream jsonSchemaInputStream = jsonSchema.getInputStream();
+                InputStream uiSchemaInputStream = uiSchema.getInputStream();
+        ) {
 
-            final JsonNode schema = mapper.readTree(inpt);
+            final JsonNode schema = mapper.readTree(jsonSchemaInputStream);
+            final JsonNode ui = mapper.readTree(uiSchemaInputStream);
+
             mockForm = new Form() {
                 @Override
                 public UUID getUuid() {
@@ -58,6 +66,11 @@ public class FormsRestController {
                 @Override
                 public JsonNode getSchema() {
                     return schema;
+                }
+
+                @Override
+                public JsonNode getMetadata() {
+                    return ui;
                 }
             };
 

@@ -10,10 +10,26 @@ import java.util.UUID;
  */
 public interface Form {
 
+    /**
+     * Uniquely identifies the {@link Form}.  Consistent between different versions of the same
+     * {@link Form}.
+     */
     UUID getUuid();
 
+    /**
+     * Starts at <code>1</code> and increments every time a {@link Form} is updated.
+     */
     int getVersion();
 
+    /**
+     * JSON Schema that defines and constrains the data (JSON) that may be submitted with the
+     * {@link Form}.
+     */
     JsonNode getSchema();
+
+    /**
+     * Optional metadata (JSON) associated with the {@link Form}.  May contain UI rendering hints.
+     */
+    JsonNode getMetadata();
 
 }
