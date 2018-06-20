@@ -28,3 +28,10 @@ for CORS requests.  The default value of this property is `http://localhost:8080
 ```
 org.apereo.portal.fbms.api.cors.origins=http://localhost:8080
 ```
+
+## API Documentation
+
+FBMS provides API documentation based on [Swagger][].  You can access the Swagger client at
+`http[s]://hostname[:port]/swagger-ui.html`.
+
+[Swagger]: https://swagger.io/
