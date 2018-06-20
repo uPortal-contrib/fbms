@@ -29,6 +29,34 @@ for CORS requests.  The default value of this property is `http://localhost:8080
 org.apereo.portal.fbms.api.cors.origins=http://localhost:8080
 ```
 
+### Permissions
+
+Typically authenticated users have permission to read any form, as well as create, read, and update
+their own responses to forms.  (In the future FBMS may support *updating* responses both by
+overwriting an existing response and submitting a new response.)
+
+As far as managing forms themselves, there are three types of access:
+
+  - `createAuthority`
+  - `updateAuthority`
+  - `deleteAuthority`
+
+The `createAuthority` allows you to create new forms, whereas `updateAuthority` and `deleteAuthority`
+apply to any form that has been previously created.
+
+The default value for each of these authorities is `Portal Administrators`, which corresponds to the
+group of the same name in uPortal.
+
+#### Permissions Example
+
+Use the following properties to assign these permissions to one or more different portal groups:
+
+```
+org.apereo.portal.fbms.security.createAuthority=Portal Administrators, Forms Authors
+org.apereo.portal.fbms.security.updateAuthority=Portal Administrators, Forms Editors
+org.apereo.portal.fbms.security.deleteAuthority=Portal Administrators
+```
+
 ## API Documentation
 
 FBMS provides API documentation based on [Swagger][].  You can access the Swagger client at

@@ -25,10 +25,34 @@ import static org.apereo.portal.soffit.service.AbstractJwtService.SIGNATURE_KEY_
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     /**
+     * String representation of the 'Portal Administrators' group in uPortal.
+     */
+    private static final String PORTAL_ADMINISTRATORS_AUTHORITY = "Portal Administrators";
+
+    /**
      * Must match the key used by the OIDC token provider to sign the JWT.
      */
     @Value("${" + SIGNATURE_KEY_PROPERTY + ":" + DEFAULT_SIGNATURE_KEY + "}")
     private String signatureKey;
+
+    /**
+     * Comma-separated list of authorities (uPortal groups) that have access to create objects across FBMS APIs.
+     */
+    @Value("${org.apereo.portal.fbms.security.createAuthority:" +  PORTAL_ADMINISTRATORS_AUTHORITY + "}")
+    private String createAuthority;
+
+    /**
+     * Comma-separated list of authorities (uPortal groups) that have access to update objects across FBMS APIs.
+     */
+    @Value("${org.apereo.portal.fbms.security.updateAuthority:" +  PORTAL_ADMINISTRATORS_AUTHORITY + "}")
+    private String updateAuthority;
+
+    /**
+     * Comma-separated list of authorities (uPortal groups) that have access to delete objects across FBMS APIs.
+     */
+    @Value("${org.apereo.portal.fbms.security.deleteAuthority:" +  PORTAL_ADMINISTRATORS_AUTHORITY + "}")
+    private String deleteAuthority;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -42,22 +66,39 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter.setAuthenticationManager(authenticationManager());
 
         http
+
+                /*
+                 * Use the SoffitApiPreAuthenticatedProcessingFilter for identity.
+                 */
                 .addFilter(filter)
                 .authorizeRequests()
-                // TODO:  Add role-based access
+
+                /*
+                 * Role-based Security for REST APIs
+                 *
+                 * Use .hasAuthority() instead of .hasRole() because uPortal group names are not in
+                 * the format ROLE_STUDENTS, etc.
+                 */
                 .antMatchers(HttpMethod.GET,"/api/**").authenticated()
-                .antMatchers(HttpMethod.POST,"/api/**").denyAll()
-                .antMatchers(HttpMethod.DELETE,"/api/**").denyAll()
-                .antMatchers(HttpMethod.PUT,"/api/**").denyAll()
+                .antMatchers(HttpMethod.POST,"/api/**").hasAuthority(createAuthority)
+                .antMatchers(HttpMethod.PUT,"/api/**").hasAuthority(updateAuthority)
+                .antMatchers(HttpMethod.DELETE,"/api/**").hasAuthority(deleteAuthority)
                 .anyRequest().permitAll()
             .and()
+
+                /*
+                 * CSRF defense is not required because FBMS uses Bearer token AuthN instead of
+                 * Basic or cookie-based.
+                 * See https://security.stackexchange.com/questions/170388/do-i-need-csrf-token-if-im-using-bearer-jwt.
+                 */
+                .csrf().disable()
+
                 /*
                  * Session fixation protection is provided by uPortal.  Since portlet tech requires
                  * sessionCookiePath=/, we will make the portal unusable if other modules are changing
                  * the sessionId as well.
                  */
-                .sessionManagement()
-                .sessionFixation().none();
+                .sessionManagement().sessionFixation().none();
 
     }
 
