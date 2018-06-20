@@ -3,6 +3,8 @@ package org.apereo.portal.fbms.api.v1.rest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apereo.portal.fbms.api.v1.Form;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +44,8 @@ public class FormsRestController {
     // TODO:  Remove!
     private Form mockForm;
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     // TODO:  Remove!
     @PostConstruct
     public void mockData() {
@@ -48,7 +53,7 @@ public class FormsRestController {
         final ObjectMapper mapper = new ObjectMapper();
         try (
                 InputStream jsonSchemaInputStream = jsonSchema.getInputStream();
-                InputStream uiSchemaInputStream = uiSchema.getInputStream();
+                InputStream uiSchemaInputStream = uiSchema.getInputStream()
         ) {
 
             final JsonNode schema = mapper.readTree(jsonSchemaInputStream);
@@ -100,6 +105,19 @@ public class FormsRestController {
         // TODO: Implement!
 
         return new ResponseEntity<>(mockForm, HttpStatus.OK);
+    }
+
+    /**
+     * Creates a new {@link Form} and assigns it a UUID.
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    public HttpEntity<Form> createForm(@RequestBody RestBodyForm form) {
+
+        logger.debug("Received the following Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
+
+        form.setUuid(UUID.randomUUID());
+
+        return new ResponseEntity<>(form, HttpStatus.OK);
     }
 
 }
