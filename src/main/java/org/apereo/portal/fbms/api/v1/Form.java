@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.UUID;
 
 /**
- * Forms in FBMS are tree structures that support nested elements to arbitrary depth.  This
- * interface defines the root (or trunk) of that structure.
+ * Represents the central abstraction of the FBMS component.  A Form is a collection of inputs and
+ * metadata surrponding those inputs that can be solicited from a user through (at least) a web user
+ * interface.
  */
 public interface Form {
 

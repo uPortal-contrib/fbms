@@ -1,0 +1,15 @@
+{
+  "contact_information": {
+    "primary_cell_number": "123-555-1234",
+    "email_address": "person@example.com"
+  },
+  "channels": {
+    "taco_truck": {
+      "receive": "Yes",
+      "locations": [
+        "Clovis Community College"
+      ]
+    }
+  },
+  "preserve_selections": true
+}
