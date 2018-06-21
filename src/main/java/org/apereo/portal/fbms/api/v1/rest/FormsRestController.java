@@ -54,6 +54,13 @@ public class FormsRestController {
         return new ResponseEntity<>(mockForm, HttpStatus.OK);
     }
 
+    /*
+     * NOTE:  when we get to it, use URIs of the following form for obtaining previous versions of a
+     * form...
+     *
+     *   - /api/v1/forms/{uuid}/versions/{versionNumber}
+     */
+
     /**
      * Creates a new {@link Form} and assigns it a UUID.
      */
@@ -66,5 +73,23 @@ public class FormsRestController {
 
         return new ResponseEntity<>(form, HttpStatus.OK);
     }
+
+    /**
+     * Updates an existing {@link Form}, incrementing the version number but retaining the same
+     * UUID.  NOTE:  the body of the request must specify the correct, new version number.  This
+     * requirement prevents multiple submissions of the same JSON from incrementing the version
+     * multiple times.
+     */
+    @RequestMapping(value = "/{uuid}", method = RequestMethod.PUT)
+    public HttpEntity<Form> updateForm(@PathVariable("uuid") String uuid, @RequestBody RestBodyForm form) {
+
+        logger.debug("Received the following Form at {}/{uuid} {}:  {}", API_ROOT, RequestMethod.POST, form);
+
+        return new ResponseEntity<>(form, HttpStatus.OK);
+    }
+
+    /*
+     * Support delete?  What happens to existing responses?
+     */
 
 }

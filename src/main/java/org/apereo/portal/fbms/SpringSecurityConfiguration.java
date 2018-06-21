@@ -79,10 +79,27 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                  * Use .hasAuthority() instead of .hasRole() because uPortal group names are not in
                  * the format ROLE_STUDENTS, etc.
                  */
-                .antMatchers(HttpMethod.GET,"/api/**").authenticated()
-                .antMatchers(HttpMethod.POST,"/api/**").hasAuthority(createAuthority)
-                .antMatchers(HttpMethod.PUT,"/api/**").hasAuthority(updateAuthority)
-                .antMatchers(HttpMethod.DELETE,"/api/**").hasAuthority(deleteAuthority)
+
+                /*
+                 * Authenticated users may read from the /forms enpoints, but only privileged users
+                 * may create/update/delete.
+                 */
+                .antMatchers(HttpMethod.GET,"/api/forms**").authenticated()
+                .antMatchers(HttpMethod.POST,"/api/forms**").hasAuthority(createAuthority)
+                .antMatchers(HttpMethod.PUT,"/api/forms**").hasAuthority(updateAuthority)
+                .antMatchers(HttpMethod.DELETE,"/api/forms**").hasAuthority(deleteAuthority)
+
+                /*
+                 * Authenticated users may create & read their own responses.
+                 */
+                .antMatchers(HttpMethod.GET,"/api/responses**").authenticated()
+                .antMatchers(HttpMethod.POST,"/api/responses**").authenticated()
+                .antMatchers(HttpMethod.PUT,"/api/responses**").denyAll()
+                .antMatchers(HttpMethod.DELETE,"/api/responses**").denyAll()
+
+                /*
+                 * Requests to non-API URIs are okay.
+                 */
                 .anyRequest().permitAll()
             .and()
 
