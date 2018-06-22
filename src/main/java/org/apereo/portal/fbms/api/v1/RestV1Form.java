@@ -3,7 +3,6 @@ package org.apereo.portal.fbms.api.v1;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Represents a Form for the purpose of JSON serialization via Jackson within the v1 REST API.  For
@@ -12,7 +11,7 @@ import java.util.UUID;
  */
 public final class RestV1Form {
 
-    private UUID uuid;
+    private String fname;
     private int version;
     private JsonNode schema;
     private JsonNode metadata;
@@ -21,12 +20,12 @@ public final class RestV1Form {
      * Uniquely identifies the {@link RestV1Form}.  Consistent between different versions of the same
      * {@link RestV1Form}.
      */
-    public UUID getUuid() {
-        return uuid;
+    public String getFname() {
+        return fname;
     }
 
-    public RestV1Form setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public RestV1Form setFname(String fname) {
+        this.fname = fname;
         return this;
     }
 
@@ -69,8 +68,8 @@ public final class RestV1Form {
 
     @Override
     public String toString() {
-        return "RestBodyForm{" +
-                "uuid=" + uuid +
+        return "RestV1Form{" +
+                "fname='" + fname + '\'' +
                 ", version=" + version +
                 ", schema=" + schema +
                 ", metadata=" + metadata +
@@ -83,13 +82,13 @@ public final class RestV1Form {
         if (o == null || getClass() != o.getClass()) return false;
         RestV1Form that = (RestV1Form) o;
         return version == that.version &&
-                Objects.equals(uuid, that.uuid);
+                Objects.equals(fname, that.fname);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(uuid, version);
+        return Objects.hash(fname, version);
     }
 
 }

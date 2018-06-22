@@ -1,6 +1,5 @@
-package org.apereo.portal.fbms.api.v1.rest;
+package org.apereo.portal.fbms.api.v1;
 
-import org.apereo.portal.fbms.api.v1.RestV1Form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * REST endpoints for accessing and manipulating {@link RestV1Form} objects.
@@ -45,10 +43,10 @@ public class FormsRestController {
     }
 
     /**
-     * Obtains the {@link RestV1Form} with the specified <code>uuid</code>.
+     * Obtains the {@link RestV1Form} with the specified <code>fname</code>.
      */
-    @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
-    public HttpEntity<RestV1Form> getFormById(@PathVariable("uuid") String uuid) {
+    @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
+    public HttpEntity<RestV1Form> getFormById(@PathVariable("fname") String fname) {
         // TODO: Implement!
 
         return new ResponseEntity<>(mockForm, HttpStatus.OK);
@@ -58,32 +56,32 @@ public class FormsRestController {
      * NOTE:  when we get to it, use URIs of the following form for obtaining previous versions of a
      * form...
      *
-     *   - /api/v1/forms/{uuid}/versions/{versionNumber}
+     *   - /api/v1/forms/{fname}/versions/{versionNumber}
      */
 
     /**
-     * Creates a new {@link RestV1Form} and assigns it a UUID.
+     * Creates a new {@link RestV1Form} and assigns it an fname.
      */
     @RequestMapping(method = RequestMethod.POST)
     public HttpEntity<RestV1Form> createForm(@RequestBody RestV1Form form) {
 
         logger.debug("Received the following RestV1Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
 
-        form.setUuid(UUID.randomUUID());
+        form.setVersion(1);
 
         return new ResponseEntity<>(form, HttpStatus.CREATED);
     }
 
     /**
      * Updates an existing {@link RestV1Form}, incrementing the version number but retaining the same
-     * UUID.  NOTE:  the body of the request must specify the correct, new version number.  This
+     * fname.  NOTE:  the body of the request must specify the correct, new version number.  This
      * requirement prevents multiple submissions of the same JSON from incrementing the version
      * multiple times.
      */
-    @RequestMapping(value = "/{uuid}", method = RequestMethod.PUT)
-    public HttpEntity<RestV1Form> updateForm(@PathVariable("uuid") String uuid, @RequestBody RestV1Form form) {
+    @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
+    public HttpEntity<RestV1Form> updateForm(@PathVariable("fname") String fname, @RequestBody RestV1Form form) {
 
-        logger.debug("Received the following RestV1Form at {}/{uuid} {}:  {}", API_ROOT, RequestMethod.PUT, form);
+        logger.debug("Received the following RestV1Form at {}/{fname} {}:  {}", API_ROOT, RequestMethod.PUT, form);
 
         return new ResponseEntity<>(form, HttpStatus.OK);
     }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Date;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Represents a Response for the purpose of JSON serialization via Jackson within the v1 REST API.
@@ -14,7 +13,7 @@ import java.util.UUID;
 public final class RestV1Response {
 
     private String username;
-    private UUID formUuid;
+    private String formFname;
     private int formVersion;
     private Date timestamp;
     private JsonNode answers;
@@ -32,14 +31,14 @@ public final class RestV1Response {
     }
 
     /**
-     * The UUID of the {@link RestV1Form} to which this RestV1Response applies.
+     * The fname of the {@link RestV1Form} to which this RestV1Response applies.
      */
-    public UUID getFormUuid() {
-        return formUuid;
+    public String getFormFname() {
+        return formFname;
     }
 
-    public RestV1Response setFormUuid(UUID formUuid) {
-        this.formUuid = formUuid;
+    public RestV1Response setFormFname(String formFname) {
+        this.formFname = formFname;
         return this;
     }
 
@@ -81,9 +80,9 @@ public final class RestV1Response {
 
     @Override
     public String toString() {
-        return "RestBodyResponse{" +
+        return "RestV1Response{" +
                 "username='" + username + '\'' +
-                ", formUuid=" + formUuid +
+                ", formFname='" + formFname + '\'' +
                 ", formVersion=" + formVersion +
                 ", timestamp=" + timestamp +
                 ", answers=" + answers +
@@ -97,13 +96,14 @@ public final class RestV1Response {
         RestV1Response that = (RestV1Response) o;
         return formVersion == that.formVersion &&
                 Objects.equals(username, that.username) &&
-                Objects.equals(formUuid, that.formUuid) &&
+                Objects.equals(formFname, that.formFname) &&
                 Objects.equals(timestamp, that.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, formUuid, formVersion, timestamp);
+
+        return Objects.hash(username, formFname, formVersion, timestamp);
     }
 
 }

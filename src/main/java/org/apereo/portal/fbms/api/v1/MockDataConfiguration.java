@@ -8,7 +8,6 @@ import org.springframework.core.io.Resource;
 
 import java.io.InputStream;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Beans that provide mock data for as long as we don't (yet) have database persistence.
@@ -38,7 +37,7 @@ public class MockDataConfiguration {
         ) {
 
             return new RestV1Form()
-                    .setUuid(UUID.randomUUID())
+                    .setFname("communication-preferences")
                     .setVersion(1)
                     .setSchema(mapper.readTree(jsonSchemaInputStream))
                     .setMetadata(mapper.readTree(uiSchemaInputStream));
@@ -56,7 +55,7 @@ public class MockDataConfiguration {
         ) {
 
             return new RestV1Response()
-                    .setFormUuid(mockForm.getUuid())
+                    .setFormFname(mockForm.getFname())
                     .setFormVersion(mockForm.getVersion())
                     .setTimestamp(new Date())
                     .setAnswers(mapper.readTree(answersInputStream));
