@@ -1,6 +1,6 @@
 package org.apereo.portal.fbms.api.v1.rest;
 
-import org.apereo.portal.fbms.api.v1.Form;
+import org.apereo.portal.fbms.api.v1.RestV1Form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST endpoints for accessing and manipulating {@link Form} objects.
+ * REST endpoints for accessing and manipulating {@link RestV1Form} objects.
  */
 @RestController
 @CrossOrigin(origins = "${org.apereo.portal.fbms.api.cors.origins:http://localhost:8080}")
@@ -30,7 +30,7 @@ public class FormsRestController {
 
     // TODO:  Remove!
     @Autowired
-    private Form mockForm;
+    private RestV1Form mockForm;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -38,17 +38,17 @@ public class FormsRestController {
      * Provides a collection of forms that are viewable by the present user.
      */
     @RequestMapping(method = RequestMethod.GET)
-    public HttpEntity<List<Form>> listForms() {
+    public HttpEntity<List<RestV1Form>> listForms() {
         // TODO: Implement!
 
         return new ResponseEntity<>(Collections.singletonList(mockForm), HttpStatus.OK);
     }
 
     /**
-     * Obtains the {@link Form} with the specified <code>uuid</code>.
+     * Obtains the {@link RestV1Form} with the specified <code>uuid</code>.
      */
     @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
-    public HttpEntity<Form> getFormById(@PathVariable("uuid") String uuid) {
+    public HttpEntity<RestV1Form> getFormById(@PathVariable("uuid") String uuid) {
         // TODO: Implement!
 
         return new ResponseEntity<>(mockForm, HttpStatus.OK);
@@ -62,28 +62,28 @@ public class FormsRestController {
      */
 
     /**
-     * Creates a new {@link Form} and assigns it a UUID.
+     * Creates a new {@link RestV1Form} and assigns it a UUID.
      */
     @RequestMapping(method = RequestMethod.POST)
-    public HttpEntity<Form> createForm(@RequestBody RestBodyForm form) {
+    public HttpEntity<RestV1Form> createForm(@RequestBody RestV1Form form) {
 
-        logger.debug("Received the following Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
+        logger.debug("Received the following RestV1Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
 
         form.setUuid(UUID.randomUUID());
 
-        return new ResponseEntity<>(form, HttpStatus.OK);
+        return new ResponseEntity<>(form, HttpStatus.CREATED);
     }
 
     /**
-     * Updates an existing {@link Form}, incrementing the version number but retaining the same
+     * Updates an existing {@link RestV1Form}, incrementing the version number but retaining the same
      * UUID.  NOTE:  the body of the request must specify the correct, new version number.  This
      * requirement prevents multiple submissions of the same JSON from incrementing the version
      * multiple times.
      */
     @RequestMapping(value = "/{uuid}", method = RequestMethod.PUT)
-    public HttpEntity<Form> updateForm(@PathVariable("uuid") String uuid, @RequestBody RestBodyForm form) {
+    public HttpEntity<RestV1Form> updateForm(@PathVariable("uuid") String uuid, @RequestBody RestV1Form form) {
 
-        logger.debug("Received the following Form at {}/{uuid} {}:  {}", API_ROOT, RequestMethod.POST, form);
+        logger.debug("Received the following RestV1Form at {}/{uuid} {}:  {}", API_ROOT, RequestMethod.PUT, form);
 
         return new ResponseEntity<>(form, HttpStatus.OK);
     }

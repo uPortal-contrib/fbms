@@ -1,21 +1,17 @@
-package org.apereo.portal.fbms.api.v1.rest;
+package org.apereo.portal.fbms.api.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apereo.portal.fbms.api.v1.Response;
 
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Implementation of {@link Response} that can be marshaled from the body of an HTTP POST or PUT.
+ * Represents a Response for the purpose of JSON serialization via Jackson within the v1 REST API.
+ * For the sake of backwards compatibility, the members of this type should never change in their
+ * number or nature once the v1 API of FMBS has a full release.
  */
-public class RestBodyResponse implements Response {
-
-    /*
-     * NOTE:  It's not entirely clear at this point what implementations of Response are needed or
-     * sensible.  Be prepared for this class to disappear or change significantly.
-     */
+public final class RestV1Response {
 
     private String username;
     private UUID formUuid;
@@ -23,49 +19,64 @@ public class RestBodyResponse implements Response {
     private Date timestamp;
     private JsonNode answers;
 
-    @Override
+    /**
+     * The username of the user who produced this RestV1Response.
+     */
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public RestV1Response setUsername(String username) {
         this.username = username;
+        return this;
     }
 
-    @Override
+    /**
+     * The UUID of the {@link RestV1Form} to which this RestV1Response applies.
+     */
     public UUID getFormUuid() {
         return formUuid;
     }
 
-    public void setFormUuid(UUID formUuid) {
+    public RestV1Response setFormUuid(UUID formUuid) {
         this.formUuid = formUuid;
+        return this;
     }
 
-    @Override
+    /**
+     * The version number of the {@link RestV1Form} at the time this RestV1Response was made.
+     */
     public int getFormVersion() {
         return formVersion;
     }
 
-    public void setFormVersion(int formVersion) {
+    public RestV1Response setFormVersion(int formVersion) {
         this.formVersion = formVersion;
+        return this;
     }
 
-    @Override
+    /**
+     * The moment at which this response was created.
+     */
     public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public RestV1Response setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+        return this;
     }
 
-    @Override
+    /**
+     * JSON representing the user's answers to the questions contained in the {@link RestV1Form}.
+     */
     public JsonNode getAnswers() {
         return answers;
     }
 
-    public void setAnswers(JsonNode answers) {
+    public RestV1Response setAnswers(JsonNode answers) {
         this.answers = answers;
+        return this;
     }
 
     @Override
@@ -83,7 +94,7 @@ public class RestBodyResponse implements Response {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RestBodyResponse that = (RestBodyResponse) o;
+        RestV1Response that = (RestV1Response) o;
         return formVersion == that.formVersion &&
                 Objects.equals(username, that.username) &&
                 Objects.equals(formUuid, that.formUuid) &&
@@ -92,7 +103,6 @@ public class RestBodyResponse implements Response {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(username, formUuid, formVersion, timestamp);
     }
 

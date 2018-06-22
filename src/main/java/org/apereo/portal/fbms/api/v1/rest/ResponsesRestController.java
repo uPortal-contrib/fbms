@@ -1,9 +1,8 @@
 package org.apereo.portal.fbms.api.v1.rest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apereo.portal.fbms.UserServices;
-import org.apereo.portal.fbms.api.v1.Form;
-import org.apereo.portal.fbms.api.v1.Response;
+import org.apereo.portal.fbms.api.v1.RestV1Form;
+import org.apereo.portal.fbms.api.v1.RestV1Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.UUID;
 
 /**
- * REST endpoints for accessing and manipulating {@link Response} objects.
+ * REST endpoints for accessing and manipulating {@link RestV1Response} objects.
  */
 @RestController
 @CrossOrigin(origins = "${org.apereo.portal.fbms.api.cors.origins:http://localhost:8080}")
@@ -36,61 +34,42 @@ public class ResponsesRestController {
 
     // TODO:  Remove!
     @Autowired
-    private Response mockResponse;
+    private RestV1Response mockResponse;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * Obtains the user's most recent {@link Response} to the {@link Form} with the specified UUID.
+     * Obtains the user's most recent {@link RestV1Response} to the {@link RestV1Form} with the specified UUID.
      */
     @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
-    public HttpEntity<Response> getResponseToForm(@PathVariable("uuid") String uuid, HttpServletRequest request) {
+    public HttpEntity<RestV1Response> getResponseToForm(@PathVariable("uuid") String uuid, HttpServletRequest request) {
         // TODO: Implement!
 
-        final Response rslt = new Response() {
-            @Override
-            public String getUsername() {
-                return userServices.getUsername(request);
-            }
+        final RestV1Response rslt = new RestV1Response()
+                .setUsername(userServices.getUsername(request))
+                .setFormUuid(mockResponse.getFormUuid())
+                .setFormVersion(mockResponse.getFormVersion())
+                .setTimestamp(mockResponse.getTimestamp())
+                .setAnswers(mockResponse.getAnswers());
 
-            @Override
-            public UUID getFormUuid() {
-                return mockResponse.getFormUuid();
-            }
-
-            @Override
-            public int getFormVersion() {
-                return mockResponse.getFormVersion();
-            }
-
-            @Override
-            public Date getTimestamp() {
-                return mockResponse.getTimestamp();
-            }
-
-            @Override
-            public JsonNode getAnswers() {
-                return mockResponse.getAnswers();
-            }
-        };
         return new ResponseEntity<>(rslt, HttpStatus.OK);
     }
 
     /**
-     * Creates a new {@link Response} for this user to the {@link Form} with the specified UUID.
+     * Creates a new {@link RestV1Response} for this user to the {@link RestV1Form} with the specified UUID.
      * NOTE:  there is no update (HTTP PUT) enpoint available for responses;  each submission
-     * creates a new {@link Response} object.  It's up to clients whether they want to deal with
+     * creates a new {@link RestV1Response} object.  It's up to clients whether they want to deal with
      * multiple responses by the same user, or only the most recent.
      */
     @RequestMapping(value = "/{uuid}", method = RequestMethod.POST)
-    public HttpEntity<Response> respond(@PathVariable("uuid") String uuid, @RequestBody RestBodyResponse response) {
+    public HttpEntity<RestV1Response> respond(@PathVariable("uuid") String uuid, @RequestBody RestV1Response response) {
 
-        logger.debug("Received the following Response at {}/uuid {}:  {}", API_ROOT, RequestMethod.POST, response);
+        logger.debug("Received the following RestV1Response at {}/uuid {}:  {}", API_ROOT, RequestMethod.POST, response);
 
         // Update the timestamp...
         response.setTimestamp(new Date());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 }

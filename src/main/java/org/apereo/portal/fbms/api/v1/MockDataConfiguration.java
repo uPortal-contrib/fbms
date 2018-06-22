@@ -1,6 +1,5 @@
 package org.apereo.portal.fbms.api.v1;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,36 +31,17 @@ public class MockDataConfiguration {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Bean("mockForm")
-    public Form mockForm() {
+    public RestV1Form mockForm() {
         try (
                 InputStream jsonSchemaInputStream = jsonSchema.getInputStream();
                 InputStream uiSchemaInputStream = uiSchema.getInputStream()
         ) {
 
-            final JsonNode schema = mapper.readTree(jsonSchemaInputStream);
-            final JsonNode ui = mapper.readTree(uiSchemaInputStream);
-
-            return new Form() {
-                @Override
-                public UUID getUuid() {
-                    return UUID.randomUUID();
-                }
-
-                @Override
-                public int getVersion() {
-                    return 1;
-                }
-
-                @Override
-                public JsonNode getSchema() {
-                    return schema;
-                }
-
-                @Override
-                public JsonNode getMetadata() {
-                    return ui;
-                }
-            };
+            return new RestV1Form()
+                    .setUuid(UUID.randomUUID())
+                    .setVersion(1)
+                    .setSchema(mapper.readTree(jsonSchemaInputStream))
+                    .setMetadata(mapper.readTree(uiSchemaInputStream));
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -69,41 +49,17 @@ public class MockDataConfiguration {
     }
 
     @Bean("mockResponse")
-    public Response mockResponse() {
-        final Form mockForm = mockForm();
+    public RestV1Response mockResponse() {
+        final RestV1Form mockForm = mockForm();
         try (
                 InputStream answersInputStream = answers.getInputStream()
         ) {
 
-            final Date timestamp = new Date();
-            final JsonNode answers = mapper.readTree(answersInputStream);
-
-            return new Response() {
-                @Override
-                public String getUsername() {
-                    return null;
-                }
-
-                @Override
-                public UUID getFormUuid() {
-                    return mockForm.getUuid();
-                }
-
-                @Override
-                public int getFormVersion() {
-                    return mockForm.getVersion();
-                }
-
-                @Override
-                public Date getTimestamp() {
-                    return timestamp;
-                }
-
-                @Override
-                public JsonNode getAnswers() {
-                    return answers;
-                }
-            };
+            return new RestV1Response()
+                    .setFormUuid(mockForm.getUuid())
+                    .setFormVersion(mockForm.getVersion())
+                    .setTimestamp(new Date())
+                    .setAnswers(mapper.readTree(answersInputStream));
 
         } catch (Exception e) {
             throw new RuntimeException(e);
