@@ -34,7 +34,6 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-hateoas'
     compile 'org.springframework.boot:spring-boot-starter-security'
     compile 'org.springframework.boot:spring-boot-starter-web'
-//	compile 'com.vladmihalcea:hibernate-types-5:2.2.2' // Store Jackson JsonNode as JPA or Hibernate entity properties
     compile "io.springfox:springfox-swagger2:${springfoxVersion}"
     compile "io.springfox:springfox-swagger-ui:${springfoxVersion}"
     compile "org.jasig.portal:uPortal-soffit-renderer:${uPortalVersion}"

@@ -1,6 +1,7 @@
 package org.apereo.portal.fbms.api.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apereo.portal.fbms.data.FormEntity;
 
 import java.util.Objects;
 
@@ -15,6 +16,23 @@ public final class RestV1Form {
     private int version;
     private JsonNode schema;
     private JsonNode metadata;
+
+    public static RestV1Form fromEntity(FormEntity entity) {
+        return new RestV1Form()
+                .setFname(entity.getFname())
+                .setVersion(entity.getVersion())
+                .setSchema(entity.getSchema())
+                .setMetadata(entity.getMetadata());
+    }
+
+    public static FormEntity toEntity(RestV1Form form) {
+        final FormEntity rslt = new FormEntity();
+        rslt.setFname(form.getFname());
+        rslt.setVersion(form.getVersion());
+        rslt.setSchema(form.getSchema());
+        rslt.setMetadata(form.getMetadata());
+        return rslt;
+    }
 
     /**
      * Uniquely identifies the {@link RestV1Form}.  Consistent between different versions of the same

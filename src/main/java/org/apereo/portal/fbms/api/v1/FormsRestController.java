@@ -1,5 +1,6 @@
 package org.apereo.portal.fbms.api.v1;
 
+import org.apereo.portal.fbms.data.FormRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * REST endpoints for accessing and manipulating {@link RestV1Form} objects.
@@ -25,6 +27,9 @@ import java.util.List;
 public class FormsRestController {
 
     public static final String API_ROOT = "/api/v1/forms";
+
+    @Autowired
+    private FormRepository formRepository;
 
     // TODO:  Remove!
     @Autowired
@@ -37,9 +42,10 @@ public class FormsRestController {
      */
     @RequestMapping(method = RequestMethod.GET)
     public HttpEntity<List<RestV1Form>> listForms() {
-        // TODO: Implement!
-
-        return new ResponseEntity<>(Collections.singletonList(mockForm), HttpStatus.OK);
+        final List<RestV1Form> rslt = StreamSupport.stream(formRepository.findAll().spliterator(), false)
+                .map(entity -> RestV1Form.fromEntity(entity))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(rslt, HttpStatus.OK);
     }
 
     /**
@@ -67,7 +73,19 @@ public class FormsRestController {
 
         logger.debug("Received the following RestV1Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
 
+        if (formRepository.existsByFname(form.getFname())) {
+            /*
+             * We already have a Form with this fname;  we cannot accept this new one.
+             */
+            return new ResponseEntity<>((RestV1Form) null, HttpStatus.CONFLICT);
+        }
+
+        /*
+         * It's a new Form;  set the version number to 1.
+         */
         form.setVersion(1);
+
+        formRepository.save(RestV1Form.toEntity(form));
 
         return new ResponseEntity<>(form, HttpStatus.CREATED);
     }
