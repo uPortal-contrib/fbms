@@ -57,6 +57,23 @@ org.apereo.portal.fbms.security.updateAuthority=Portal Administrators, Forms Edi
 org.apereo.portal.fbms.security.deleteAuthority=Portal Administrators
 ```
 
+## Import/Export Features
+
+Apereo FBMS provides support for importing and exporting data from the console.  These features are
+tremendously useful for provisioning new environments and migrating data.
+
+### Importing
+
+Use the following command to import all Form objects serialized into JSON files that are located in
+the `docs/examples` directory:
+
+```bash
+$ ./gradlew build bootRunImport
+```
+
+**NOTE:** The location of this directory is very likely to change or (even more likely) become a
+parameter in the future.  Check this document for changes.
+
 ## API Documentation
 
 FBMS provides API documentation based on [Swagger][].  You can access the Swagger client at
