@@ -77,7 +77,7 @@ public class FormsRestController {
             /*
              * We already have a Form with this fname;  we cannot accept this new one.
              */
-            return new ResponseEntity<>((RestV1Form) null, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         /*

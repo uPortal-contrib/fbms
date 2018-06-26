@@ -56,3 +56,15 @@ dependencies {
     runtime 'org.springframework.boot:spring-boot-properties-migrator'
 
 }
+
+/**
+ * This custom Gradle task starts the Spring Boot app and invokes the Importer, passing the location
+ * 'docs/examples.'
+ */
+task bootRunImport(type: org.springframework.boot.gradle.tasks.run.BootRun) {
+    doFirst() {
+        main = 'org.apereo.portal.fbms.ApereoFbmsApplication' // Same as "normal"
+        classpath = sourceSets.main.runtimeClasspath
+        args = ['--import', 'docs/examples']
+    }
+}
