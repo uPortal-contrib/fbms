@@ -1,10 +1,11 @@
 package org.apereo.portal.fbms.api.v1;
 
+import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
+import org.apereo.portal.fbms.util.FnameValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,11 +30,10 @@ public class FormsRestController {
     public static final String API_ROOT = "/api/v1/forms";
 
     @Autowired
-    private FormRepository formRepository;
+    private FnameValidator fnameValidator;
 
-    // TODO:  Remove!
     @Autowired
-    private RestV1Form mockForm;
+    private FormRepository formRepository;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -41,21 +41,37 @@ public class FormsRestController {
      * Provides a collection of forms that are viewable by the present user.
      */
     @RequestMapping(method = RequestMethod.GET)
-    public HttpEntity<List<RestV1Form>> listForms() {
+    public ResponseEntity listForms() {
         final List<RestV1Form> rslt = StreamSupport.stream(formRepository.findAll().spliterator(), false)
                 .map(entity -> RestV1Form.fromEntity(entity))
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(rslt, HttpStatus.OK);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(rslt);
     }
 
     /**
      * Obtains the {@link RestV1Form} with the specified <code>fname</code>.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
-    public HttpEntity<RestV1Form> getFormById(@PathVariable("fname") String fname) {
-        // TODO: Implement!
+    public ResponseEntity getFormByFname(@PathVariable("fname") String fname) {
+        if (!fnameValidator.isValid(fname)) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("The specified fname is invalid");
+        }
 
-        return new ResponseEntity<>(mockForm, HttpStatus.OK);
+        final FormEntity entity = formRepository.findByFname(fname);
+        if (entity != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(RestV1Form.fromEntity(entity));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("A form with the specified fname does not exist:  " + fname);
+        }
     }
 
     /*
@@ -69,7 +85,7 @@ public class FormsRestController {
      * Creates a new {@link RestV1Form} and assigns it an fname.
      */
     @RequestMapping(method = RequestMethod.POST)
-    public HttpEntity<RestV1Form> createForm(@RequestBody RestV1Form form) {
+    public ResponseEntity createForm(@RequestBody RestV1Form form) {
 
         logger.debug("Received the following RestV1Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
 
@@ -97,7 +113,7 @@ public class FormsRestController {
      * multiple times.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
-    public HttpEntity<RestV1Form> updateForm(@PathVariable("fname") String fname, @RequestBody RestV1Form form) {
+    public ResponseEntity updateForm(@PathVariable("fname") String fname, @RequestBody RestV1Form form) {
 
         logger.debug("Received the following RestV1Form at {}/{fname} {}:  {}", API_ROOT, RequestMethod.PUT, form);
 

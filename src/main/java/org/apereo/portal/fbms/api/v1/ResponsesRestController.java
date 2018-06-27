@@ -1,10 +1,9 @@
 package org.apereo.portal.fbms.api.v1;
 
-import org.apereo.portal.fbms.UserServices;
+import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -41,7 +40,7 @@ public class ResponsesRestController {
      * specified fname.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
-    public HttpEntity<RestV1Response> getResponseToForm(@PathVariable("fname") String fname, HttpServletRequest request) {
+    public ResponseEntity getResponseToForm(@PathVariable("fname") String fname, HttpServletRequest request) {
         // TODO: Implement!
 
         final RestV1Response rslt = new RestV1Response()
@@ -61,7 +60,7 @@ public class ResponsesRestController {
      * to deal with multiple responses by the same user, or only the most recent.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.POST)
-    public HttpEntity<RestV1Response> respond(@PathVariable("fname") String fname, @RequestBody RestV1Response response) {
+    public ResponseEntity respond(@PathVariable("fname") String fname, @RequestBody RestV1Response response) {
 
         logger.debug("Received the following RestV1Response at {}/fname {}:  {}", API_ROOT, RequestMethod.POST, response);
 
