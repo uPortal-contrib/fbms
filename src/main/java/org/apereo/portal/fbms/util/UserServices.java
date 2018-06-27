@@ -1,4 +1,4 @@
-package org.apereo.portal.fbms;
+package org.apereo.portal.fbms.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
