@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -62,7 +63,7 @@ public class FormsRestController {
                     .body("The specified fname is invalid");
         }
 
-        final FormEntity entity = formRepository.findByFname(fname);
+        final FormEntity entity = formRepository.findMostRecentByFname(fname);
         if (entity != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -87,13 +88,16 @@ public class FormsRestController {
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity createForm(@RequestBody RestV1Form form) {
 
-        logger.debug("Received the following RestV1Form at {} {}:  {}", API_ROOT, RequestMethod.POST, form);
+        logger.debug("Received the following RestV1Form at {} {}:  {}",
+                API_ROOT, RequestMethod.POST, form);
 
         if (formRepository.existsByFname(form.getFname())) {
             /*
              * We already have a Form with this fname;  we cannot accept this new one.
              */
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("A form with the specified fname already exists:  " + form.getFname());
         }
 
         /*
@@ -115,7 +119,43 @@ public class FormsRestController {
     @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
     public ResponseEntity updateForm(@PathVariable("fname") String fname, @RequestBody RestV1Form form) {
 
-        logger.debug("Received the following RestV1Form at {}/{fname} {}:  {}", API_ROOT, RequestMethod.PUT, form);
+        logger.debug("Received the following RestV1Form at {}/{} {}:\n{}",
+                API_ROOT, form.getFname(), RequestMethod.PUT, form);
+
+        if (!formRepository.existsByFname(form.getFname())) {
+            /*
+             * The specified form must already exist
+             */
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("A form with the specified fname does not exist:  " + fname);
+        } else if (!form.getFname().equals(fname)) {
+            /*
+             * The specified form must match the fname in the URI
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("The fname of the specified form ('"
+                            + form.getFname() + "') does not match the fname in the URI ('"
+                            + fname + "')");
+        }
+
+        final FormEntity entity = formRepository.findMostRecentByFname(fname);
+        final int expectedVersion = entity.getId().getVersion() + 1;
+        if (!Objects.equals(form.getVersion(), expectedVersion)) {
+            /*
+             * The specified form must correctly specify the next version number (prevents havoc
+             * from repeated requests)
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Bad version number;  expected " + expectedVersion + " was " + form.getVersion());
+        }
+
+        /*
+         * Save the RestV1Form as a new FormEntity
+         */
+        formRepository.save(RestV1Form.toEntity(form));
 
         return new ResponseEntity<>(form, HttpStatus.OK);
     }
