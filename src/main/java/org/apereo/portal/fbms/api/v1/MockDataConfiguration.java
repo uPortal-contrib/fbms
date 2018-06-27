@@ -47,14 +47,14 @@ public class MockDataConfiguration {
         }
     }
 
-    @Bean("mockResponse")
-    public RestV1Response mockResponse() {
+    @Bean("mockSubmission")
+    public RestV1Submission mockSubmission() {
         final RestV1Form mockForm = mockForm();
         try (
                 InputStream answersInputStream = answers.getInputStream()
         ) {
 
-            return new RestV1Response()
+            return new RestV1Submission()
                     .setFormFname(mockForm.getFname())
                     .setFormVersion(mockForm.getVersion())
                     .setTimestamp(new Date())

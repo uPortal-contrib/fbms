@@ -90,12 +90,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE,"/api/forms**").hasAuthority(deleteAuthority)
 
                 /*
-                 * Authenticated users may create & read their own responses.
+                 * Authenticated users may create & read their own submissions.
                  */
-                .antMatchers(HttpMethod.GET,"/api/responses**").authenticated()
-                .antMatchers(HttpMethod.POST,"/api/responses**").authenticated()
-                .antMatchers(HttpMethod.PUT,"/api/responses**").denyAll()
-                .antMatchers(HttpMethod.DELETE,"/api/responses**").denyAll()
+                .antMatchers(HttpMethod.GET,"/api/submissions**").authenticated()
+                .antMatchers(HttpMethod.POST,"/api/submissions**").authenticated()
+                .antMatchers(HttpMethod.PUT,"/api/submissions**").denyAll()
+                .antMatchers(HttpMethod.DELETE,"/api/submissions**").denyAll()
 
                 /*
                  * Requests to non-API URIs are okay.

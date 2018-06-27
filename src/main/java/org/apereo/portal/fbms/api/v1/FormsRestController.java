@@ -161,7 +161,7 @@ public class FormsRestController {
     }
 
     /*
-     * Support delete?  What happens to existing responses?
+     * Support delete?  What happens to existing submissions?
      */
 
 }
