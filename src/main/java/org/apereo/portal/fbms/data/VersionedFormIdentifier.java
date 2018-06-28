@@ -6,15 +6,15 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Serves as the primary key for both {@link FormEntity} and xxx objects.
+ * Serves as the primary key for {@link FormEntity} objects.
  */
 @Embeddable
-public class VersionedIdentifier implements Serializable {
+public class VersionedFormIdentifier implements Serializable {
 
-    @Column(name = "FNAME", nullable = false)
+    @Column(name = "FORM_FNAME", nullable = false)
     private String fname; // TODO:  Regex-based validator
 
-    @Column(name = "VERSION", nullable = false)
+    @Column(name = "FORM_VERSION", nullable = false)
     private int version;
 
     public String getFname() {
@@ -45,7 +45,7 @@ public class VersionedIdentifier implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VersionedIdentifier that = (VersionedIdentifier) o;
+        VersionedFormIdentifier that = (VersionedFormIdentifier) o;
         return version == that.version &&
                 Objects.equals(fname, that.fname);
     }

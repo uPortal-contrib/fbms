@@ -8,13 +8,17 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "FBMS_FORM")
 public class FormEntity {
 
+    /**
+     * The fname and version of the Form.
+     */
     @EmbeddedId
-    private VersionedIdentifier id;
+    private VersionedFormIdentifier id;
 
     @Column(name = "SCHEMA", length=100000, nullable = false)
     @Convert(converter = JsonNodeToStringAttributeConverter.class)
@@ -26,11 +30,11 @@ public class FormEntity {
     @Lob
     private JsonNode metadata;
 
-    public VersionedIdentifier getId() {
+    public VersionedFormIdentifier getId() {
         return id;
     }
 
-    public void setId(VersionedIdentifier id) {
+    public void setId(VersionedFormIdentifier id) {
         this.id = id;
     }
 
@@ -57,6 +61,20 @@ public class FormEntity {
                 ", schema=" + schema +
                 ", metadata=" + metadata +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FormEntity that = (FormEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id);
     }
 
 }

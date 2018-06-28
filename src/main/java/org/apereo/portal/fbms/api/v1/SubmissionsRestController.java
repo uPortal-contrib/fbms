@@ -1,5 +1,9 @@
 package org.apereo.portal.fbms.api.v1;
 
+import org.apereo.portal.fbms.data.FormEntity;
+import org.apereo.portal.fbms.data.FormRepository;
+import org.apereo.portal.fbms.data.SubmissionEntity;
+import org.apereo.portal.fbms.data.SubmissionRepository;
 import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.Objects;
 
 /**
  * REST endpoints for accessing and manipulating {@link RestV1Submission} objects.
@@ -25,6 +29,13 @@ import java.util.Date;
 public class SubmissionsRestController {
 
     public static final String API_ROOT = "/api/v1/submissions";
+
+    @Autowired
+    private FormRepository formRepository;
+
+    @Autowired
+    private SubmissionRepository submissionRepository;
+
 
     @Autowired
     private UserServices userServices;
@@ -62,17 +73,77 @@ public class SubmissionsRestController {
      * to deal with multiple submissions by the same user, or only the most recent.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.POST)
-    public ResponseEntity respond(@PathVariable("fname") String fname, @RequestBody RestV1Submission submission) {
+    public ResponseEntity respond(@PathVariable("fname") String fname,
+            @RequestBody RestV1Submission submission, HttpServletRequest request) {
 
         logger.debug("Received the following RestV1Submission at {}/{} {}:  {}",
                 API_ROOT, fname, RequestMethod.POST, submission);
 
-        // Update the timestamp...
-        submission.setTimestamp(new Date());
+        final String username = userServices.getUsername(request);
+
+        // TODO:  username must match?
+
+        /*
+         * - Form exists?
+         * - Submission has correct form version?
+         * - Timestamp exists?
+         * - JSON valid?
+         */
+
+        final FormEntity formEntity = formRepository.findMostRecentByFname(fname);
+        if (formEntity == null) {
+            /*
+             * There must be a Form with the specified fname
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("The specified form does not exist:  " + fname);
+        } else if (!Objects.equals(submission.getFormVersion(), formEntity.getId().getVersion())) {
+            /*
+             * The submission must be for the most recent version of the form
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Incorrect Form version;  expected " +
+                            formEntity.getId().getVersion() + ", was " +
+                            submission.getFormVersion());
+        } else if (!Objects.equals(submission.getFormFname(), fname)) {
+            /*
+             * The specified form fname (in the submission) must match the fname in the URI
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("The specified form fname ('"
+                            + submission.getFormFname() + "') does not match the fname in the URI ('"
+                            + fname + "')");
+        } else if (submission.getTimestamp() == null) {
+            /*
+             * The submission must contain a timestamp
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Submission timestamp not set");
+        }
+
+        final SubmissionEntity submissionEntity =
+                submissionRepository.findMostRecentByUsernameAndFname(username, fname);
+        if (submissionEntity != null && submission.getTimestamp() < submissionEntity.getTimestamp().getTime()) {
+            /*
+             * The submission must be newer than the most recent one we already have
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Submission timestamp is not sufficiently new");
+        }
+
+        // TODO:  validate JSON Schema
+
+        submissionRepository.save(RestV1Submission.toEntity(submission));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(submission);
+
     }
 
 }

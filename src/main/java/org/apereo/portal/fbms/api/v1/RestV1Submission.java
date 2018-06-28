@@ -1,6 +1,8 @@
 package org.apereo.portal.fbms.api.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apereo.portal.fbms.data.SubmissionEntity;
+import org.apereo.portal.fbms.data.VersionedSubmissionIdentifier;
 
 import java.util.Date;
 import java.util.Objects;
@@ -15,8 +17,29 @@ public final class RestV1Submission {
     private String username;
     private String formFname;
     private int formVersion;
-    private Date timestamp;
+    private Long timestamp;
     private JsonNode answers;
+
+    public static RestV1Submission fromEntity(SubmissionEntity entity) {
+        return new RestV1Submission()
+                .setUsername(entity.getId().getUsername())
+                .setFormFname(entity.getId().getFname())
+                .setFormVersion(entity.getId().getVersion())
+                .setTimestamp(entity.getTimestamp().getTime())
+                .setAnswers(entity.getAnswers());
+    }
+
+    public static SubmissionEntity toEntity(RestV1Submission submission) {
+        final VersionedSubmissionIdentifier id = new VersionedSubmissionIdentifier();
+        id.setUsername(submission.getUsername());
+        id.setFname(submission.getFormFname());
+        id.setVersion(submission.getFormVersion());
+        final SubmissionEntity rslt = new SubmissionEntity();
+        rslt.setId(id);
+        rslt.setTimestamp(new Date(submission.getTimestamp()));
+        rslt.setAnswers(submission.getAnswers());
+        return rslt;
+    }
 
     /**
      * The username of the user who produced this Submission.
@@ -57,11 +80,11 @@ public final class RestV1Submission {
     /**
      * The moment at which this Submission was created.
      */
-    public Date getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public RestV1Submission setTimestamp(Date timestamp) {
+    public RestV1Submission setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
         return this;
     }

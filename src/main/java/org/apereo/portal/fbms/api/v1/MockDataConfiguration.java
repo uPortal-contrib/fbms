@@ -57,7 +57,7 @@ public class MockDataConfiguration {
             return new RestV1Submission()
                     .setFormFname(mockForm.getFname())
                     .setFormVersion(mockForm.getVersion())
-                    .setTimestamp(new Date())
+                    .setTimestamp(new Date().getTime())
                     .setAnswers(mapper.readTree(answersInputStream));
 
         } catch (Exception e) {
