@@ -4,6 +4,7 @@ import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.data.SubmissionEntity;
 import org.apereo.portal.fbms.data.SubmissionRepository;
+import org.apereo.portal.fbms.util.FnameValidator;
 import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,8 @@ public class SubmissionsRestController {
     @Autowired
     private SubmissionRepository submissionRepository;
 
+    @Autowired
+    private FnameValidator fnameValidator;
 
     @Autowired
     private UserServices userServices;
@@ -52,18 +55,27 @@ public class SubmissionsRestController {
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
     public ResponseEntity getUserSubmission(@PathVariable("fname") String fname, HttpServletRequest request) {
-        // TODO: Implement!
 
-        final RestV1Submission rslt = new RestV1Submission()
-                .setUsername(userServices.getUsername(request))
-                .setFormFname(mockSubmission.getFormFname())
-                .setFormVersion(mockSubmission.getFormVersion())
-                .setTimestamp(mockSubmission.getTimestamp())
-                .setAnswers(mockSubmission.getAnswers());
+        if (!fnameValidator.isValid(fname)) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("The specified fname is invalid");
+        }
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(rslt);
+        final String username = userServices.getUsername(request);
+
+        final SubmissionEntity entity = submissionRepository.findMostRecentByUsernameAndFname(username, fname);
+        if (entity != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(RestV1Submission.fromEntity(entity));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("A submission from the specified user for the form with the specified " +
+                            "fname does not exist:  " + fname);
+        }
+
     }
 
     /**
@@ -81,14 +93,14 @@ public class SubmissionsRestController {
 
         final String username = userServices.getUsername(request);
 
-        // TODO:  username must match?
-
-        /*
-         * - Form exists?
-         * - Submission has correct form version?
-         * - Timestamp exists?
-         * - JSON valid?
-         */
+        if (!Objects.equals(username, submission.getUsername())) {
+            /*
+             * The username in the submission must match the Bearer token
+             */
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Incorrect username");
+        }
 
         final FormEntity formEntity = formRepository.findMostRecentByFname(fname);
         if (formEntity == null) {
