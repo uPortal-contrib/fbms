@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "FBMS_FORM")
-public class FormEntity {
+public class FormEntity implements FbmsEntity {
 
     /**
      * The fname and version of the Form.

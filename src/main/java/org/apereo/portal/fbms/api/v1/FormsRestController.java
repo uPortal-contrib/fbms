@@ -1,5 +1,6 @@
 package org.apereo.portal.fbms.api.v1;
 
+import org.apereo.portal.fbms.data.FilterChainBuilder;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.util.FnameValidator;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,6 +38,9 @@ public class FormsRestController {
     @Autowired
     private FormRepository formRepository;
 
+    @Autowired
+    private FilterChainBuilder filterChainBuilder;
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
@@ -44,8 +49,10 @@ public class FormsRestController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity listForms() {
         final List<RestV1Form> rslt = StreamSupport.stream(formRepository.findAll().spliterator(), false)
-                .map(entity -> RestV1Form.fromEntity(entity))
+                .map(RestV1Form::fromEntity)
                 .collect(Collectors.toList());
+
+        // TODO:  Should return the URIs of the objects, not the objects themselves.
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,14 +63,18 @@ public class FormsRestController {
      * Obtains the {@link RestV1Form} with the specified <code>fname</code>.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
-    public ResponseEntity getFormByFname(@PathVariable("fname") String fname) {
+    public ResponseEntity getFormByFname(@PathVariable("fname") String fname, HttpServletRequest request) {
+
         if (!fnameValidator.isValid(fname)) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("The specified fname is invalid");
         }
 
-        final FormEntity entity = formRepository.findMostRecentByFname(fname);
+        final FormEntity entity =
+                filterChainBuilder.fromSupplier(request,
+                        () -> formRepository.findMostRecentByFname(fname)).get();
+
         if (entity != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -73,6 +84,7 @@ public class FormsRestController {
                     .status(HttpStatus.NOT_FOUND)
                     .body("A form with the specified fname does not exist:  " + fname);
         }
+
     }
 
     /*
@@ -86,7 +98,7 @@ public class FormsRestController {
      * Creates a new {@link RestV1Form} and assigns it an fname.
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity createForm(@RequestBody RestV1Form form) {
+    public ResponseEntity createForm(@RequestBody RestV1Form form, HttpServletRequest request) {
 
         logger.debug("Received the following RestV1Form at {} {}:  {}",
                 API_ROOT, RequestMethod.POST, form);
@@ -105,9 +117,16 @@ public class FormsRestController {
          */
         form.setVersion(1);
 
-        formRepository.save(RestV1Form.toEntity(form));
+        final FormEntity entity = filterChainBuilder.fromUnaryOperator(
+                request,
+                RestV1Form.toEntity(form),
+                (e) -> formRepository.save(e)
+        ).get();
 
-        return new ResponseEntity<>(form, HttpStatus.CREATED);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(RestV1Form.fromEntity(entity));
+
     }
 
     /**
@@ -117,7 +136,8 @@ public class FormsRestController {
      * multiple times.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
-    public ResponseEntity updateForm(@PathVariable("fname") String fname, @RequestBody RestV1Form form) {
+    public ResponseEntity updateForm(@PathVariable("fname") String fname,
+            @RequestBody RestV1Form form, HttpServletRequest request) {
 
         logger.debug("Received the following RestV1Form at {}/{} {}:\n{}",
                 API_ROOT, form.getFname(), RequestMethod.PUT, form);
@@ -140,24 +160,31 @@ public class FormsRestController {
                             + fname + "')");
         }
 
-        final FormEntity entity = formRepository.findMostRecentByFname(fname);
-        final int expectedVersion = entity.getId().getVersion() + 1;
-        if (!Objects.equals(form.getVersion(), expectedVersion)) {
+        final FormEntity previousVersion = formRepository.findMostRecentByFname(fname);
+        final int expectedVersionNumber = previousVersion.getId().getVersion() + 1;
+        if (!Objects.equals(form.getVersion(), expectedVersionNumber)) {
             /*
              * The specified form must correctly specify the next version number (prevents havoc
              * from repeated requests)
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Bad version number;  expected " + expectedVersion + " was " + form.getVersion());
+                    .body("Bad version number;  expected " + expectedVersionNumber + " was " + form.getVersion());
         }
 
         /*
          * Save the RestV1Form as a new FormEntity
          */
-        formRepository.save(RestV1Form.toEntity(form));
+        final FormEntity entity = filterChainBuilder.fromUnaryOperator(
+                request,
+                RestV1Form.toEntity(form),
+                (e) -> formRepository.save(e)
+        ).get();
 
-        return new ResponseEntity<>(form, HttpStatus.OK);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(RestV1Form.fromEntity(entity));
+
     }
 
     /*

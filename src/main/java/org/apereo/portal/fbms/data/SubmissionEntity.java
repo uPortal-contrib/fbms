@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "FBMS_SUBMISSION")
-public class SubmissionEntity {
+public class SubmissionEntity implements FbmsEntity {
 
     /**
      * The fname and version of the associated Form, plus the user's username.

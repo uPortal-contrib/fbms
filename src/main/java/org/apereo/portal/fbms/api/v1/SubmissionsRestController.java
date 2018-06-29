@@ -1,5 +1,6 @@
 package org.apereo.portal.fbms.api.v1;
 
+import org.apereo.portal.fbms.data.FilterChainBuilder;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.data.SubmissionEntity;
@@ -38,14 +39,13 @@ public class SubmissionsRestController {
     private SubmissionRepository submissionRepository;
 
     @Autowired
+    private FilterChainBuilder filterChainBuilder;
+
+    @Autowired
     private FnameValidator fnameValidator;
 
     @Autowired
     private UserServices userServices;
-
-    // TODO:  Remove!
-    @Autowired
-    private RestV1Submission mockSubmission;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -64,7 +64,11 @@ public class SubmissionsRestController {
 
         final String username = userServices.getUsername(request);
 
-        final SubmissionEntity entity = submissionRepository.findMostRecentByUsernameAndFname(username, fname);
+        final SubmissionEntity entity =
+                filterChainBuilder.fromSupplier(request,
+                        () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
+                ).get();
+
         if (entity != null) {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -137,9 +141,9 @@ public class SubmissionsRestController {
                     .body("Submission timestamp not set");
         }
 
-        final SubmissionEntity submissionEntity =
+        final SubmissionEntity mostRecent =
                 submissionRepository.findMostRecentByUsernameAndFname(username, fname);
-        if (submissionEntity != null && submission.getTimestamp() < submissionEntity.getTimestamp().getTime()) {
+        if (mostRecent != null && submission.getTimestamp() < mostRecent.getTimestamp().getTime()) {
             /*
              * The submission must be newer than the most recent one we already have
              */
@@ -150,11 +154,15 @@ public class SubmissionsRestController {
 
         // TODO:  validate JSON Schema
 
-        submissionRepository.save(RestV1Submission.toEntity(submission));
+        final SubmissionEntity entity = filterChainBuilder.fromUnaryOperator(
+                request,
+                RestV1Submission.toEntity(submission),
+                (e) -> submissionRepository.save(e)
+        ).get();
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(submission);
+                .body(RestV1Submission.fromEntity(entity));
 
     }
 
