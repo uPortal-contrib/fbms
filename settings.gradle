@@ -1,1 +1,3 @@
 rootProject.name = 'fbms'
+
+include 'fbms-webapp'

@@ -10,7 +10,7 @@ designed for use with Apereo uPortal.
 Use the Spring Boot Gradle Plugin to execute this project in a local development environment.
 
 ```console
-$ ./gradlew bootRun
+$ ./gradlew fbms-webapp:bootRun
 ```
 
 ## Configuration
