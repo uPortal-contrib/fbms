@@ -16,8 +16,6 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'war'
 
-group = 'org.jasig.portal.fbms'
-version = '1.0.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 configurations {

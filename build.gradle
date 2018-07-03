@@ -2,6 +2,12 @@ description = "Form Builder Microservice (FBMS) for the uPortal ecosystem, by Ap
 
 subprojects {
 
+    // Adds the 'install' task
+    apply plugin: 'maven'
+
+    group = 'org.jasig.portal.fbms'
+    version = '1.0.0-SNAPSHOT'
+
     repositories {
         mavenCentral()
         mavenLocal()
