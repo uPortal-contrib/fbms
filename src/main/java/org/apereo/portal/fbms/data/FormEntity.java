@@ -18,7 +18,7 @@ public class FormEntity implements FbmsEntity {
      * The fname and version of the Form.
      */
     @EmbeddedId
-    private VersionedFormIdentifier id;
+    private FormIdentifier id;
 
     @Column(name = "SCHEMA", length=100000, nullable = false)
     @Convert(converter = JsonNodeToStringAttributeConverter.class)
@@ -30,11 +30,11 @@ public class FormEntity implements FbmsEntity {
     @Lob
     private JsonNode metadata;
 
-    public VersionedFormIdentifier getId() {
+    public FormIdentifier getId() {
         return id;
     }
 
-    public void setId(VersionedFormIdentifier id) {
+    public void setId(FormIdentifier id) {
         this.id = id;
     }
 

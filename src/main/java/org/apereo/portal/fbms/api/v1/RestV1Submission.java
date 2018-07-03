@@ -2,7 +2,7 @@ package org.apereo.portal.fbms.api.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apereo.portal.fbms.data.SubmissionEntity;
-import org.apereo.portal.fbms.data.VersionedSubmissionIdentifier;
+import org.apereo.portal.fbms.data.SubmissionIdentifier;
 
 import java.util.Date;
 import java.util.Objects;
@@ -25,18 +25,18 @@ public final class RestV1Submission {
                 .setUsername(entity.getId().getUsername())
                 .setFormFname(entity.getId().getFname())
                 .setFormVersion(entity.getId().getVersion())
-                .setTimestamp(entity.getTimestamp().getTime())
+                .setTimestamp(entity.getId().getTimestamp().getTime())
                 .setAnswers(entity.getAnswers());
     }
 
     public static SubmissionEntity toEntity(RestV1Submission submission) {
-        final VersionedSubmissionIdentifier id = new VersionedSubmissionIdentifier();
+        final SubmissionIdentifier id = new SubmissionIdentifier();
         id.setUsername(submission.getUsername());
         id.setFname(submission.getFormFname());
         id.setVersion(submission.getFormVersion());
+        id.setTimestamp(new Date(submission.getTimestamp()));
         final SubmissionEntity rslt = new SubmissionEntity();
         rslt.setId(id);
-        rslt.setTimestamp(new Date(submission.getTimestamp()));
         rslt.setAnswers(submission.getAnswers());
         return rslt;
     }

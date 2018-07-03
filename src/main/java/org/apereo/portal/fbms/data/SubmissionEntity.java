@@ -8,7 +8,6 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -19,30 +18,19 @@ public class SubmissionEntity implements FbmsEntity {
      * The fname and version of the associated Form, plus the user's username.
      */
     @EmbeddedId
-    private VersionedSubmissionIdentifier id;
-
-    @Column(name = "TIMESTAMP", nullable = false)
-    private Date timestamp;
+    private SubmissionIdentifier id;
 
     @Column(name = "ANSWERS", length=100000, nullable = false)
     @Convert(converter = JsonNodeToStringAttributeConverter.class)
     @Lob
     private JsonNode answers;
 
-    public VersionedSubmissionIdentifier getId() {
+    public SubmissionIdentifier getId() {
         return id;
     }
 
-    public void setId(VersionedSubmissionIdentifier id) {
+    public void setId(SubmissionIdentifier id) {
         this.id = id;
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
     }
 
     public JsonNode getAnswers() {
@@ -57,7 +45,6 @@ public class SubmissionEntity implements FbmsEntity {
     public String toString() {
         return "SubmissionEntity{" +
                 "id=" + id +
-                ", timestamp=" + timestamp +
                 ", answers=" + answers +
                 '}';
     }
@@ -72,6 +59,7 @@ public class SubmissionEntity implements FbmsEntity {
 
     @Override
     public int hashCode() {
+
         return Objects.hash(id);
     }
 

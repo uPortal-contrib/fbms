@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface FormRepository extends CrudRepository<FormEntity,VersionedFormIdentifier> {
+public interface FormRepository extends CrudRepository<FormEntity,FormIdentifier> {
 
     @Query("SELECT COUNT(f) > 0 FROM FormEntity f WHERE f.id.fname = :fname")
     boolean existsByFname(@Param("fname") String fname);

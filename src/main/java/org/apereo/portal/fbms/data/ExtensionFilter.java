@@ -3,6 +3,7 @@ package org.apereo.portal.fbms.data;
 import org.springframework.core.Ordered;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Provide an implementation of this interface to inject custom logic into FBMS when data is
@@ -11,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * <p>Filters may throw exceptions <i>before</i> repository operations to cancel them.
  */
-public interface FbmsFilter <E extends FbmsEntity> extends Ordered {
+public interface ExtensionFilter<E extends FbmsEntity> extends Ordered {
 
     /*
      * Helper constants for ordering;  filters take effect in the reverse of the eorder in which
@@ -26,15 +27,15 @@ public interface FbmsFilter <E extends FbmsEntity> extends Ordered {
     int ORDER_LAST = Integer.MIN_VALUE;
 
     /**
-     * This method allows {@link SubmissionFilter} to indicate whether they apply to the specified
+     * This method allows {@link ExtensionFilter} to indicate whether they apply to the specified
      * request and/or entity.  The decision can be based on HTTP method, URI, the user who sent it,
      * etc.  Filters that do not apply are not included in the filter chain.
      */
-    boolean appliesTo(HttpServletRequest request, FbmsEntity entity);
+    boolean appliesTo(FbmsEntity entity, HttpServletRequest request);
 
     /**
      * Invoke custom logic when an entity is created, read, updated, or deleted.
      */
-    E doFilter(HttpServletRequest request, E entity, FbmsFilterChain<E> chain);
+    E doFilter(E entity, HttpServletRequest request, HttpServletResponse response, ExtensionFilterChain<E> chain);
 
 }

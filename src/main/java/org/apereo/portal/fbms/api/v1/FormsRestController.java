@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -63,7 +64,8 @@ public class FormsRestController {
      * Obtains the {@link RestV1Form} with the specified <code>fname</code>.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
-    public ResponseEntity getFormByFname(@PathVariable("fname") String fname, HttpServletRequest request) {
+    public ResponseEntity getFormByFname(@PathVariable("fname") String fname,
+            HttpServletRequest request, HttpServletResponse response) {
 
         if (!fnameValidator.isValid(fname)) {
             return ResponseEntity
@@ -72,7 +74,7 @@ public class FormsRestController {
         }
 
         final FormEntity entity =
-                filterChainBuilder.fromSupplier(request,
+                filterChainBuilder.fromSupplier(request, response,
                         () -> formRepository.findMostRecentByFname(fname)).get();
 
         if (entity != null) {
@@ -98,7 +100,8 @@ public class FormsRestController {
      * Creates a new {@link RestV1Form} and assigns it an fname.
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity createForm(@RequestBody RestV1Form form, HttpServletRequest request) {
+    public ResponseEntity createForm(@RequestBody RestV1Form form, HttpServletRequest request,
+            HttpServletResponse response) {
 
         logger.debug("Received the following RestV1Form at {} {}:  {}",
                 API_ROOT, RequestMethod.POST, form);
@@ -118,8 +121,9 @@ public class FormsRestController {
         form.setVersion(1);
 
         final FormEntity entity = filterChainBuilder.fromUnaryOperator(
-                request,
                 RestV1Form.toEntity(form),
+                request,
+                response,
                 (e) -> formRepository.save(e)
         ).get();
 
@@ -137,7 +141,7 @@ public class FormsRestController {
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
     public ResponseEntity updateForm(@PathVariable("fname") String fname,
-            @RequestBody RestV1Form form, HttpServletRequest request) {
+            @RequestBody RestV1Form form, HttpServletRequest request, HttpServletResponse response) {
 
         logger.debug("Received the following RestV1Form at {}/{} {}:\n{}",
                 API_ROOT, form.getFname(), RequestMethod.PUT, form);
@@ -176,8 +180,9 @@ public class FormsRestController {
          * Save the RestV1Form as a new FormEntity
          */
         final FormEntity entity = filterChainBuilder.fromUnaryOperator(
-                request,
                 RestV1Form.toEntity(form),
+                request,
+                response,
                 (e) -> formRepository.save(e)
         ).get();
 

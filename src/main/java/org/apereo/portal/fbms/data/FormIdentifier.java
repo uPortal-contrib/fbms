@@ -9,7 +9,7 @@ import java.util.Objects;
  * Serves as the primary key for {@link FormEntity} objects.
  */
 @Embeddable
-public class VersionedFormIdentifier implements Serializable {
+public class FormIdentifier implements Serializable {
 
     @Column(name = "FORM_FNAME", nullable = false)
     private String fname; // TODO:  Regex-based validator
@@ -45,7 +45,7 @@ public class VersionedFormIdentifier implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VersionedFormIdentifier that = (VersionedFormIdentifier) o;
+        FormIdentifier that = (FormIdentifier) o;
         return version == that.version &&
                 Objects.equals(fname, that.fname);
     }

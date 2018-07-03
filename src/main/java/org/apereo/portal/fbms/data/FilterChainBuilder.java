@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -14,61 +16,68 @@ import java.util.function.UnaryOperator;
 @Component
 public class FilterChainBuilder {
 
-    @Autowired
-    private List<FbmsFilter> filters;
+    @Autowired(required = false)
+    private List<ExtensionFilter> filters;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @PostConstruct
     public void init() {
+        // Record filter settings in the log
         logger.info("Found the following FbmsFilter beans:  {}", filters);
+
+        // Prevent NPE if no filters are configured
+        if (filters == null) {
+            filters = Collections.emptyList();
+        }
     }
 
     /**
      * Builds a filter chain based on a <code>Supplier</code>.
      */
-    public <E extends FbmsEntity> Supplier<E> fromSupplier(HttpServletRequest request, final Supplier<E> callback) {
+    public <E extends FbmsEntity> Supplier<E> fromSupplier(HttpServletRequest request,
+            HttpServletResponse response, final Supplier<E> callback) {
 
         /*
          * Wrap the callback in a FbmsFilterChain at the center of the "onion."
          */
-        FbmsFilterChain<E> chain = entity1 -> callback.get();
+        ExtensionFilterChain<E> chain = entity1 -> callback.get();
 
         /*
          * Add layers of the onion
          */
-        for (FbmsFilter filter : filters) {
-            final boolean applies = filter.appliesTo(request, null);
+        for (ExtensionFilter filter : filters) {
+            final boolean applies = filter.appliesTo(null, request);
             logger.debug("FbmsFilter bean {} {} apply to request with URI='{}' and method='{}'",
                     filter,
                     applies ? "DOES" : "DOES NOT",
                     request.getRequestURI(),
                     request.getMethod());
             if (applies) {
-                chain = new FbmsFilterChainImpl(filter, request, chain);
+                chain = new ExtensionFilterChainImpl(filter, request, response, chain);
             }
         }
 
         /*
          * Decorate the whole business in a Supplier
          */
-        final FbmsFilterChain<E> rslt = chain;
+        final ExtensionFilterChain<E> rslt = chain;
         return () -> rslt.doFilter(null);
 
     }
 
-    public <E extends FbmsEntity> Supplier<E> fromUnaryOperator(HttpServletRequest request, E entity, final UnaryOperator<E> callback) {
+    public <E extends FbmsEntity> Supplier<E> fromUnaryOperator(E entity, HttpServletRequest request, HttpServletResponse response, final UnaryOperator<E> callback) {
 
         /*
          * Wrap the callback in a FbmsFilterChain at the center of the "onion."
          */
-        FbmsFilterChain<E> chain = entity1 -> callback.apply(entity);
+        ExtensionFilterChain<E> chain = entity1 -> callback.apply(entity);
 
         /*
          * Add layers of the onion
          */
-        for (FbmsFilter filter : filters) {
-            final boolean applies = filter.appliesTo(request, entity);
+        for (ExtensionFilter filter : filters) {
+            final boolean applies = filter.appliesTo(entity, request);
             logger.debug("FbmsFilter bean {} {} apply to request with URI='{}', method='{}', and entity='{}'",
                     filter,
                     applies ? "DOES" : "DOES NOT",
@@ -76,14 +85,14 @@ public class FilterChainBuilder {
                     request.getMethod(),
                     entity);
             if (applies) {
-                chain = new FbmsFilterChainImpl(filter, request, chain);
+                chain = new ExtensionFilterChainImpl(filter, request, response, chain);
             }
         }
 
         /*
          * Decorate the whole business in a Supplier
          */
-        final FbmsFilterChain<E> rslt = chain;
+        final ExtensionFilterChain<E> rslt = chain;
         return () -> rslt.doFilter(entity);
 
     }
@@ -92,21 +101,26 @@ public class FilterChainBuilder {
      * Nested Types
      */
 
-    private static final class FbmsFilterChainImpl<E extends FbmsEntity> implements FbmsFilterChain<E> {
+    private static final class ExtensionFilterChainImpl<E extends FbmsEntity> implements ExtensionFilterChain<E> {
 
-        private final FbmsFilter<E> enclosed;
+        private final ExtensionFilter<E> enclosed;
         private final HttpServletRequest request;
-        private final FbmsFilterChain<E> nextLink;
+        private final HttpServletResponse response;
+        private final ExtensionFilterChain<E> nextLink;
 
-        /* package-private */ FbmsFilterChainImpl(FbmsFilter<E> enclosed, HttpServletRequest request, FbmsFilterChain<E> nextLink) {
+        /* package-private */ ExtensionFilterChainImpl(ExtensionFilter<E> enclosed,
+                HttpServletRequest request, HttpServletResponse response, ExtensionFilterChain<E> nextLink) {
+
             this.enclosed = enclosed;
             this.request = request;
+            this.response = response;
             this.nextLink = nextLink;
+
         }
 
         @Override
         public final E doFilter(E entity) {
-            return enclosed.doFilter(request, entity, nextLink);
+            return enclosed.doFilter(entity, request, response, nextLink);
         }
 
     }

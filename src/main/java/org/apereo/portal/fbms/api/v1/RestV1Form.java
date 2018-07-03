@@ -2,7 +2,7 @@ package org.apereo.portal.fbms.api.v1;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apereo.portal.fbms.data.FormEntity;
-import org.apereo.portal.fbms.data.VersionedFormIdentifier;
+import org.apereo.portal.fbms.data.FormIdentifier;
 
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ public final class RestV1Form {
     }
 
     public static FormEntity toEntity(RestV1Form form) {
-        final VersionedFormIdentifier id = new VersionedFormIdentifier();
+        final FormIdentifier id = new FormIdentifier();
         id.setFname(form.getFname());
         id.setVersion(form.getVersion());
         final FormEntity rslt = new FormEntity();

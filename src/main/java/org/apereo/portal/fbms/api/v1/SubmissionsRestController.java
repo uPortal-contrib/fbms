@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 /**
@@ -54,7 +55,8 @@ public class SubmissionsRestController {
      * specified fname.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
-    public ResponseEntity getUserSubmission(@PathVariable("fname") String fname, HttpServletRequest request) {
+    public ResponseEntity getUserSubmission(@PathVariable("fname") String fname,
+            HttpServletRequest request, HttpServletResponse response) {
 
         if (!fnameValidator.isValid(fname)) {
             return ResponseEntity
@@ -65,7 +67,7 @@ public class SubmissionsRestController {
         final String username = userServices.getUsername(request);
 
         final SubmissionEntity entity =
-                filterChainBuilder.fromSupplier(request,
+                filterChainBuilder.fromSupplier(request, response,
                         () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
                 ).get();
 
@@ -90,7 +92,8 @@ public class SubmissionsRestController {
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.POST)
     public ResponseEntity respond(@PathVariable("fname") String fname,
-            @RequestBody RestV1Submission submission, HttpServletRequest request) {
+            @RequestBody RestV1Submission submission, HttpServletRequest request,
+            HttpServletResponse response) {
 
         logger.debug("Received the following RestV1Submission at {}/{} {}:  {}",
                 API_ROOT, fname, RequestMethod.POST, submission);
@@ -143,7 +146,7 @@ public class SubmissionsRestController {
 
         final SubmissionEntity mostRecent =
                 submissionRepository.findMostRecentByUsernameAndFname(username, fname);
-        if (mostRecent != null && submission.getTimestamp() < mostRecent.getTimestamp().getTime()) {
+        if (mostRecent != null && submission.getTimestamp() < mostRecent.getId().getTimestamp().getTime()) {
             /*
              * The submission must be newer than the most recent one we already have
              */
@@ -155,8 +158,9 @@ public class SubmissionsRestController {
         // TODO:  validate JSON Schema
 
         final SubmissionEntity entity = filterChainBuilder.fromUnaryOperator(
-                request,
                 RestV1Submission.toEntity(submission),
+                request,
+                response,
                 (e) -> submissionRepository.save(e)
         ).get();
 
