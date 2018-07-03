@@ -2,4 +2,9 @@ description = "Form Builder Microservice (FBMS) for the uPortal ecosystem, by Ap
 
 subprojects {
 
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
 }

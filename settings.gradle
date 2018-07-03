@@ -1,3 +1,4 @@
 rootProject.name = 'fbms'
 
+include 'fbms-core'
 include 'fbms-webapp'

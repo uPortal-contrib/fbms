@@ -1,0 +1,18 @@
+description = "Essential, non-Boot Java sources for FBMS, available in JAR format"
+
+apply plugin: 'java'
+
+dependencies {
+    /*
+     * This list parrots the required (mostly transitive) dependencies from fbms-webapp;  I wish
+     * there were a good way to get the version numbers from there.
+     */
+    compileOnly 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
+    compileOnly 'javax.servlet:servlet-api:2.5'
+    compileOnly 'org.apache.commons:commons-lang3:3.7'
+    compileOnly 'org.hibernate:hibernate-core:5.2.17.Final'
+    compileOnly 'org.slf4j:slf4j-api:1.7.25'
+    compileOnly 'org.springframework.data:spring-data-jpa:2.0.8.RELEASE'
+    compileOnly 'org.springframework:spring-beans:5.0.7.RELEASE'
+    compileOnly 'org.springframework:spring-context:5.0.7.RELEASE'
+}
