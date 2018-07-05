@@ -68,7 +68,7 @@ Use the following command to import all Form objects serialized into JSON files 
 the `docs/examples` directory:
 
 ```bash
-$ ./gradlew build bootRunImport
+$ ./gradlew build fbms-webapp:bootRunImport
 ```
 
 **NOTE:** The location of this directory is very likely to change or (even more likely) become a

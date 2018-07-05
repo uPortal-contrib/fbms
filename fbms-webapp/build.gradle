@@ -61,6 +61,6 @@ task bootRunImport(type: org.springframework.boot.gradle.tasks.run.BootRun) {
     doFirst() {
         main = 'org.apereo.portal.fbms.ApereoFbmsApplication' // Same as "normal"
         classpath = sourceSets.main.runtimeClasspath
-        args = ['--import', 'docs/examples']
+        args = ['--import', "${rootProject.projectDir}/docs/examples"]
     }
 }
