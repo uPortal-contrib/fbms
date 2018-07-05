@@ -91,7 +91,7 @@ public class SubmissionsRestController {
      * to deal with multiple submissions by the same user, or only the most recent.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.POST)
-    public ResponseEntity respond(@PathVariable("fname") String fname,
+    public ResponseEntity<UpdateStatus> respond(@PathVariable("fname") String fname,
             @RequestBody RestV1Submission submission, HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -106,7 +106,7 @@ public class SubmissionsRestController {
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Incorrect username");
+                    .body(UpdateStatus.failure("Incorrect username"));
         }
 
         final FormEntity formEntity = formRepository.findMostRecentByFname(fname);
@@ -116,32 +116,32 @@ public class SubmissionsRestController {
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("The specified form does not exist:  " + fname);
+                    .body(UpdateStatus.failure("The specified form does not exist:  " + fname));
         } else if (!Objects.equals(submission.getFormVersion(), formEntity.getId().getVersion())) {
             /*
              * The submission must be for the most recent version of the form
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Incorrect Form version;  expected " +
+                    .body(UpdateStatus.failure("Incorrect Form version;  expected " +
                             formEntity.getId().getVersion() + ", was " +
-                            submission.getFormVersion());
+                            submission.getFormVersion()));
         } else if (!Objects.equals(submission.getFormFname(), fname)) {
             /*
              * The specified form fname (in the submission) must match the fname in the URI
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("The specified form fname ('"
+                    .body(UpdateStatus.failure("The specified form fname ('"
                             + submission.getFormFname() + "') does not match the fname in the URI ('"
-                            + fname + "')");
+                            + fname + "')"));
         } else if (submission.getTimestamp() == null) {
             /*
              * The submission must contain a timestamp
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Submission timestamp not set");
+                    .body(UpdateStatus.failure("Submission timestamp not set"));
         }
 
         final SubmissionEntity mostRecent =
@@ -152,7 +152,7 @@ public class SubmissionsRestController {
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Submission timestamp is not sufficiently new");
+                    .body(UpdateStatus.failure("Submission timestamp is not sufficiently new"));
         }
 
         // TODO:  validate JSON Schema
@@ -166,7 +166,7 @@ public class SubmissionsRestController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(RestV1Submission.fromEntity(entity));
+                .body(UpdateStatus.success("Submission accepted for form with the following fname:  " + fname));
 
     }
 

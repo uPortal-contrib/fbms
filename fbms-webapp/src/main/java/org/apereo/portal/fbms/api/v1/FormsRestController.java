@@ -100,7 +100,7 @@ public class FormsRestController {
      * Creates a new {@link RestV1Form} and assigns it an fname.
      */
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity createForm(@RequestBody RestV1Form form, HttpServletRequest request,
+    public ResponseEntity<UpdateStatus> createForm(@RequestBody RestV1Form form, HttpServletRequest request,
             HttpServletResponse response) {
 
         logger.debug("Received the following RestV1Form at {} {}:  {}",
@@ -112,7 +112,7 @@ public class FormsRestController {
              */
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
-                    .body("A form with the specified fname already exists:  " + form.getFname());
+                    .body(UpdateStatus.failure("A form with the specified fname already exists:  " + form.getFname()));
         }
 
         /*
@@ -129,7 +129,7 @@ public class FormsRestController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(RestV1Form.fromEntity(entity));
+                .body(UpdateStatus.success("Created form with the following fname:  " + form.getFname()));
 
     }
 
@@ -140,7 +140,7 @@ public class FormsRestController {
      * multiple times.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
-    public ResponseEntity updateForm(@PathVariable("fname") String fname,
+    public ResponseEntity<UpdateStatus> updateForm(@PathVariable("fname") String fname,
             @RequestBody RestV1Form form, HttpServletRequest request, HttpServletResponse response) {
 
         logger.debug("Received the following RestV1Form at {}/{} {}:\n{}",
@@ -152,16 +152,16 @@ public class FormsRestController {
              */
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("A form with the specified fname does not exist:  " + fname);
+                    .body(UpdateStatus.failure("A form with the specified fname does not exist:  " + fname));
         } else if (!form.getFname().equals(fname)) {
             /*
              * The specified form must match the fname in the URI
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("The fname of the specified form ('"
+                    .body(UpdateStatus.failure("The fname of the specified form ('"
                             + form.getFname() + "') does not match the fname in the URI ('"
-                            + fname + "')");
+                            + fname + "')"));
         }
 
         final FormEntity previousVersion = formRepository.findMostRecentByFname(fname);
@@ -173,7 +173,8 @@ public class FormsRestController {
              */
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Bad version number;  expected " + expectedVersionNumber + " was " + form.getVersion());
+                    .body(UpdateStatus.failure("Bad version number;  expected " +
+                            expectedVersionNumber + " was " + form.getVersion()));
         }
 
         /*
@@ -188,7 +189,7 @@ public class FormsRestController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(RestV1Form.fromEntity(entity));
+                .body(UpdateStatus.success("Updated form with the following fname:  " + fname));
 
     }
 
