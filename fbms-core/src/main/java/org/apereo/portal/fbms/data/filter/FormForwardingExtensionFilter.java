@@ -32,8 +32,14 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
                 && request.getMethod().equalsIgnoreCase("POST");
     }
 
+    /**
+     * Use this method (within another, custom {@link ExtensionFilter}) to invoke the form-forwarding feature.
+     */
     public void forward(HttpServletRequest request, FormEntity form) {
 
+        if (!appliesTo(form, request)) {
+            throw new IllegalStateException("Form-forwarding does not apply to this request");
+        }
         if (form == null) {
             throw new IllegalArgumentException("Argument 'form' cannot be null");
         }

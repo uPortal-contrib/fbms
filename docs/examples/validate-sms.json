@@ -1,0 +1,19 @@
+{
+  "fname": "validate-sms",
+  "version": 1,
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://localhost:8090/validate-sms.json",
+    "title": "Validate Your Mobile Number",
+    "description": "Please validate your SMS contact information by entering the validation code you received in a text message below.",
+    "type": "object",
+    "properties": {
+      "validation_code": {
+        "$id": "/properties/validation_code",
+        "title": "Validation Code",
+        "type": "string"
+      }
+    }
+  },
+  "metadata": {}
+}
