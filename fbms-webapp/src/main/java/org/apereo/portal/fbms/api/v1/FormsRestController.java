@@ -70,7 +70,7 @@ public class FormsRestController {
         if (!fnameValidator.isValid(fname)) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("The specified fname is invalid");
+                    .body("The specified fname is invalid:  " + fname);
         }
 
         final FormEntity entity =
@@ -113,6 +113,13 @@ public class FormsRestController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(UpdateStatus.failure("A form with the specified fname already exists:  " + form.getFname()));
+        } else if (!fnameValidator.isValid(form.getFname())) {
+            /*
+             * The submitted Form contains an invalid fname
+             */
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(UpdateStatus.failure("The specified fname is invalid:  " + form.getFname()));
         }
 
         /*
