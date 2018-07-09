@@ -4,8 +4,8 @@
   "schema": {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://localhost:8090/validate-sms.json",
-    "title": "Validate Your Mobile Number",
-    "description": "Please validate your SMS contact information by entering the validation code you received in a text message below.",
+    "title": "Mobile Number Validation",
+    "description": "The system detected that your primary cell number has changed.  A text message has been sent to the primary cell number containing a validation code.  Please locate the code in the message and enter it below.",
     "type": "object",
     "properties": {
       "validation_code": {
