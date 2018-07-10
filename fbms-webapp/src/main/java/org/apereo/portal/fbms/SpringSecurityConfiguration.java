@@ -53,6 +53,11 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Value("${org.apereo.portal.fbms.security.deleteAuthority:" +  PORTAL_ADMINISTRATORS_AUTHORITY + "}")
     private String deleteAuthority;
 
+    /**
+     * Comma-separated list of authorities (uPortal groups) that have access to read the submissions of others.
+     */
+    @Value("${org.apereo.portal.fbms.security.readOthersAuthority:" +  PORTAL_ADMINISTRATORS_AUTHORITY + "}")
+    private String readOthersAuthority;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -84,23 +89,28 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                  * Authenticated users may read from the /forms enpoints, but only privileged users
                  * may create/update/delete.
                  */
-                .antMatchers(HttpMethod.GET,"/api/forms**").authenticated()
-                .antMatchers(HttpMethod.POST,"/api/forms**").hasAuthority(createAuthority)
-                .antMatchers(HttpMethod.PUT,"/api/forms**").hasAuthority(updateAuthority)
-                .antMatchers(HttpMethod.DELETE,"/api/forms**").hasAuthority(deleteAuthority)
+                .antMatchers(HttpMethod.GET,"/api/v1/forms/*").authenticated()
+                .antMatchers(HttpMethod.POST,"/api/v1/forms/*").hasAuthority(createAuthority)
+                .antMatchers(HttpMethod.PUT,"/api/v1/forms/*").hasAuthority(updateAuthority)
+                .antMatchers(HttpMethod.DELETE,"/api/v1/forms/*").hasAuthority(deleteAuthority)
+
+                /*
+                 * Privileged users read the submissions of others.
+                 */
+                .antMatchers(HttpMethod.GET,"/api/v1/submissions/*/users/*").hasAuthority(readOthersAuthority)
 
                 /*
                  * Authenticated users may create & read their own submissions.
                  */
-                .antMatchers(HttpMethod.GET,"/api/submissions**").authenticated()
-                .antMatchers(HttpMethod.POST,"/api/submissions**").authenticated()
-                .antMatchers(HttpMethod.PUT,"/api/submissions**").denyAll()
-                .antMatchers(HttpMethod.DELETE,"/api/submissions**").denyAll()
+                .antMatchers(HttpMethod.GET,"/api/v1/submissions/*").authenticated()
+                .antMatchers(HttpMethod.POST,"/api/v1/submissions/*").authenticated()
+                .antMatchers(HttpMethod.PUT,"/api/v1/submissions/*").denyAll()
+                .antMatchers(HttpMethod.DELETE,"/api/v1/submissions/*").denyAll()
 
                 /*
                  * Requests to non-API URIs are okay.
                  */
-                .anyRequest().permitAll()
+                .anyRequest().denyAll()
             .and()
 
                 /*
