@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class FormForwardingExtensionFilter extends AbstractExtensionFilter<SubmissionEntity> {
 
-    private static final String FORM_FORWARD_SESSION_ATTRIBUTE = FormForwardingExtensionFilter.class.getName() + ".formForward";
+    public static final String FORM_FORWARD_HEADER_NAME = "X-FBMS-FormForward";
 
-    private static final String FORM_FORWARD_HEADER_NAME = "X-FBMS-FormForward";
+    private static final String FORM_FORWARD_SESSION_ATTRIBUTE = FormForwardingExtensionFilter.class.getName() + ".formForward";
 
     public FormForwardingExtensionFilter() {
         super(ExtensionFilter.ORDER_FIRST); // First-in, last-out

@@ -1,10 +1,12 @@
 package org.apereo.portal.fbms.api.v1;
 
+import org.apereo.portal.fbms.data.FilterChainAbortException;
 import org.apereo.portal.fbms.data.FilterChainBuilder;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.data.SubmissionEntity;
 import org.apereo.portal.fbms.data.SubmissionRepository;
+import org.apereo.portal.fbms.data.filter.FormForwardingExtensionFilter;
 import org.apereo.portal.fbms.util.FnameValidator;
 import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
@@ -27,7 +29,10 @@ import java.util.Objects;
  * REST endpoints for accessing and manipulating {@link RestV1Submission} objects.
  */
 @RestController
-@CrossOrigin(origins = "${org.apereo.portal.fbms.api.cors.origins:http://localhost:8080}")
+@CrossOrigin(
+        origins = "${org.apereo.portal.fbms.api.cors.origins:http://localhost:8080}",
+        exposedHeaders = FormForwardingExtensionFilter.FORM_FORWARD_HEADER_NAME
+)
 @RequestMapping(SubmissionsRestController.API_ROOT)
 public class SubmissionsRestController {
 
@@ -157,12 +162,22 @@ public class SubmissionsRestController {
 
         // TODO:  validate JSON Schema
 
-        final SubmissionEntity entity = filterChainBuilder.fromUnaryOperator(
-                RestV1Submission.toEntity(submission),
-                request,
-                response,
-                (e) -> submissionRepository.save(e)
-        ).get();
+        // Invoke the requested operation
+        try {
+            final SubmissionEntity entity = filterChainBuilder.fromUnaryOperator(
+                    RestV1Submission.toEntity(submission),
+                    request,
+                    response,
+                    (e) -> submissionRepository.save(e)
+            ).get();
+        } catch (FilterChainAbortException fcae) {
+            final String feedback = fcae.getFeedback() != null
+                    ? fcae.getFeedback()
+                    : "Invalid input(s)";
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(UpdateStatus.failure(feedback));
+        }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
