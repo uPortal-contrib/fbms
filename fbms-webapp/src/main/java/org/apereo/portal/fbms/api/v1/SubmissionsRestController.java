@@ -60,7 +60,7 @@ public class SubmissionsRestController {
      * specified fname.
      */
     @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
-    public ResponseEntity getUserSubmission(@PathVariable("fname") String fname,
+    public ResponseEntity getOwnSubmission(@PathVariable("fname") String fname,
             HttpServletRequest request, HttpServletResponse response) {
 
         if (!fnameValidator.isValid(fname)) {
@@ -83,8 +83,8 @@ public class SubmissionsRestController {
         } else {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("A submission from the specified user for the form with the specified " +
-                            "fname does not exist:  " + fname);
+                    .body("A submission from user '" + username + "' for form with fname '" +
+                            fname + "' does not exist");
         }
 
     }
@@ -182,6 +182,39 @@ public class SubmissionsRestController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(UpdateStatus.success("Submission accepted for form with the following fname:  " + fname));
+
+    }
+
+    /**
+     * Obtains the most recent {@link RestV1Submission} to the specified {@link RestV1Form} by the
+     * specified user.  Only privileged users have access to this API.
+     */
+    @RequestMapping(value = "/{fname}/users/{username}", method = RequestMethod.GET)
+    public ResponseEntity getSubmissionForUser(@PathVariable("fname") String fname,
+            @PathVariable("username") String username, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        if (!fnameValidator.isValid(fname)) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("The specified fname is invalid");
+        }
+
+        final SubmissionEntity entity =
+                filterChainBuilder.fromSupplier(request, response,
+                        () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
+                ).get();
+
+        if (entity != null) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(RestV1Submission.fromEntity(entity));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("A submission from user '" + username + "' for form with fname '" +
+                            fname + "' does not exist");
+        }
 
     }
 
