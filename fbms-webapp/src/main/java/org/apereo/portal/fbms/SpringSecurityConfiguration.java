@@ -108,7 +108,12 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE,"/api/v1/submissions/*").denyAll()
 
                 /*
-                 * Requests to non-API URIs are okay.
+                 * JavaScript files may be accessed by anyone
+                 */
+                .antMatchers(HttpMethod.GET,"/js/**").permitAll()
+
+                /*
+                 * Anything not covered by these rules is not permitted.
                  */
                 .anyRequest().denyAll()
             .and()
