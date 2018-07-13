@@ -15,16 +15,17 @@ import javax.servlet.http.HttpServletResponse;
 public interface ExtensionFilter<E extends FbmsEntity> extends Ordered {
 
     /*
-     * Helper constants for ordering;  filters take effect in the reverse of the eorder in which
-     * they are invoked.
+     * Helper constants for ordering.  For "inbound" processing, <em>earlier</em> filters have their
+     * <code>doFilter</code> method invoked before <em>later</em> filters;  for "outbound"
+     * processing,it's the reverse.  (In other words "first in, last out.")
      */
-    int ORDER_FIRST = Integer.MAX_VALUE;
+    int ORDER_EARLIEST = 1000;
     int ORDER_VERY_EARLY = 100;
     int ORDER_EARLY = 10;
     int ORDER_NORMAL = 0;
     int ORDER_LATE = -10;
     int ORDER_VERY_LATE = -100;
-    int ORDER_LAST = Integer.MIN_VALUE;
+    int ORDER_LATEST = -1000;
 
     /**
      * This method allows {@link ExtensionFilter} to indicate whether they apply to the specified

@@ -22,7 +22,7 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
     private static final String FORM_FORWARD_SESSION_ATTRIBUTE = FormForwardingExtensionFilter.class.getName() + ".formForward";
 
     public FormForwardingExtensionFilter() {
-        super(ExtensionFilter.ORDER_FIRST); // First-in, last-out
+        super(ExtensionFilter.ORDER_EARLIEST); // First-in, last-out
     }
 
     @Override
