@@ -113,6 +113,14 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET,"/js/**").permitAll()
 
                 /*
+                 * And the Swagger UI must be reachable as well
+                 */
+                .antMatchers(HttpMethod.GET,"/swagger-ui.html").permitAll()
+                .antMatchers(HttpMethod.GET,"/swagger-resources/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/webjars/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/v2/api-docs/**").permitAll()
+
+                /*
                  * Anything not covered by these rules is not permitted.
                  */
                 .anyRequest().denyAll()
