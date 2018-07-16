@@ -24,9 +24,21 @@ import java.util.List;
  * Spring application down.
  */
 @Component
-public class Importer implements CommandLineRunner {
+public class ImportExportSupport implements CommandLineRunner {
 
+    /**
+     * Token indicating that the process will drop and recreate the Hibernate-managed tables (via
+     * <code>--spring.jpa.hibernate.ddl-auto=create</code>) and should exit upon completion.  May be
+     * chained with <code>IMPORT_TOKEN</code> (though this one must always come first).
+     */
+    private static final String INIT_TOKEN = "--init";
+
+    /**
+     * Token indicating that succeeding command-line arguments are system paths of resources to
+     * import.  May be chained with <code>INIT_TOKEN</code> (which must always come first).
+     */
     private static final String IMPORT_TOKEN = "--import";
+
     private static final String JSON_FILE_EXTENSION = ".json";
 
     @Autowired
@@ -45,7 +57,11 @@ public class Importer implements CommandLineRunner {
      */
     @Override
     public void run(String... args) throws Exception {
+
         final List<String> list = Arrays.asList(args);
+        logger.info("Received the following command-line arguments:  {}", list);
+
+        // Handle imports...
         if (list.contains(IMPORT_TOKEN)) {
             /*
              * This is a console-based import operation.  We will do our work, then shut the String
@@ -56,8 +72,13 @@ public class Importer implements CommandLineRunner {
                 logger.info("Importing data from the specified location (including descendants, if appropriate):  {}", location);
                 importSpecifiedLocation(Paths.get(location));
             });
+        }
+
+        // Terminate the process on either an init or import (or both)...
+        if (list.contains(INIT_TOKEN) || list.contains(IMPORT_TOKEN)) {
             SpringApplication.exit(context);
         }
+
     }
 
     private void importSpecifiedLocation(Path location) {

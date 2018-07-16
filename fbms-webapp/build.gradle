@@ -54,10 +54,22 @@ dependencies {
 }
 
 /**
+ * This custom Gradle task starts the Spring Boot app with spring.jpa.hibernate.ddl-auto=create,
+ * which drops and recreates the Hibernate-managed tables.
+ */
+task bootRunDataInit(type: org.springframework.boot.gradle.tasks.run.BootRun) {
+    doFirst() {
+        main = 'org.apereo.portal.fbms.ApereoFbmsApplication' // Same as "normal"
+        classpath = sourceSets.main.runtimeClasspath
+        args = ['--init', '--spring.jpa.hibernate.ddl-auto=create']
+    }
+}
+
+/**
  * This custom Gradle task starts the Spring Boot app and invokes the Importer, passing the location
  * 'docs/examples.'
  */
-task bootRunImport(type: org.springframework.boot.gradle.tasks.run.BootRun) {
+task bootRunDataImport(type: org.springframework.boot.gradle.tasks.run.BootRun) {
     doFirst() {
         main = 'org.apereo.portal.fbms.ApereoFbmsApplication' // Same as "normal"
         classpath = sourceSets.main.runtimeClasspath

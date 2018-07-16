@@ -62,13 +62,21 @@ org.apereo.portal.fbms.security.deleteAuthority=Portal Administrators
 Apereo FBMS provides support for importing and exporting data from the console.  These features are
 tremendously useful for provisioning new environments and migrating data.
 
+### Initializing the Database Schema
+
+Use the following command to drop (if necessary) and create the Hibernate-managed database tables:
+
+```bash
+$ ./gradlew assemble fbms-webapp:bootRunDataInit
+```
+
 ### Importing
 
 Use the following command to import all Form objects serialized into JSON files that are located in
 the `docs/examples` directory:
 
 ```bash
-$ ./gradlew build fbms-webapp:bootRunImport
+$ ./gradlew assemble fbms-webapp:bootRunDataImport
 ```
 
 **NOTE:** The location of this directory is very likely to change or (even more likely) become a
