@@ -59,7 +59,9 @@ public class ImportExportSupport implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         final List<String> list = Arrays.asList(args);
-        logger.info("Received the following command-line arguments:  {}", list);
+        if (list.size() != 0) {
+            logger.info("Received the following command-line arguments:  {}", list);
+        }
 
         // Handle imports...
         if (list.contains(IMPORT_TOKEN)) {
