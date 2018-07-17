@@ -1,16 +1,28 @@
+// On hold:  https://github.com/drewwills/fbms/issues/34
+//plugins {
+//    id "com.github.hierynomus.license" version "0.14.0"
+//}
+
 description = "Form Builder Microservice (FBMS) for the uPortal ecosystem, by Apereo"
 
 subprojects {
 
-    // Adds the 'install' task
-    apply plugin: 'maven'
-
-    group = 'org.jasig.portal.fbms'
-    version = '1.0.0-SNAPSHOT'
+//    apply plugin: 'license' // On hold https://github.com/drewwills/fbms/issues/34
+    apply plugin: 'maven'   // Adds the 'install' task
 
     repositories {
         mavenCentral()
         mavenLocal()
     }
+
+// On hold:  https://github.com/drewwills/fbms/issues/34
+//    license {
+//        header = rootProject.file('docs/short-license-header.txt')
+//        strictCheck = true
+//        mapping {
+//            java = 'SLASHSTAR_STYLE'
+//        }
+//        exclude "**/*.json"
+//    }
 
 }
