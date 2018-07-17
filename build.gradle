@@ -1,14 +1,19 @@
-// On hold:  https://github.com/drewwills/fbms/issues/34
-//plugins {
+plugins {
+//    On hold:  https://github.com/drewwills/fbms/issues/34
 //    id "com.github.hierynomus.license" version "0.14.0"
-//}
+    id 'net.researchgate.release' version '2.6.0'
+}
+
+apply plugin: 'java'
 
 description = "Form Builder Microservice (FBMS) for the uPortal ecosystem, by Apereo"
 
 subprojects {
 
-//    apply plugin: 'license' // On hold https://github.com/drewwills/fbms/issues/34
+    apply plugin: 'java'
+//  apply plugin: 'license' // On hold https://github.com/drewwills/fbms/issues/34
     apply plugin: 'maven'   // Adds the 'install' task
+    apply plugin: 'signing'
 
     repositories {
         mavenCentral()
@@ -25,4 +30,80 @@ subprojects {
 //        exclude "**/*.json"
 //    }
 
+    /* Release Management
+     *
+     * Based on Sonatype's guide for publishing w/ Gradle:  http://central.sonatype.org/pages/gradle.html
+     */
+    ext {
+        publishingUsername = project.hasProperty('ossrhUsername') ? project.getProperty('ossrhUsername') : ""
+        publishingPassword = project.hasProperty('ossrhPassword') ? project.getProperty('ossrhPassword') : ""
+    }
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier 'sources'
+        from sourceSets.main.allSource
+    }
+    tasks.withType(Javadoc) {
+        // FIXME: Fix errors rather than supressing them
+        failOnError = false
+    }
+    tasks.withType(Jar) {
+        from(project.projectDir) {
+            include "${rootDir}/LICENSE"
+            into 'META-INF'
+        }
+    }
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+    signing {
+        required { gradle.taskGraph.hasTask('uploadArchives') }
+        sign configurations.archives
+    }
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: publishingUsername, password: publishingPassword)
+                }
+
+                pom.project {
+                    name 'FBMS'
+                    description 'Form Builder Microservice (FBMS) for the uPortal ecosystem, by Apereo'
+                    url 'https://github.com/drewwills/fbms'
+
+                    scm {
+                        connection 'scm:git:git://github.com/drewwills/fbms.git'
+                        url 'https://github.com/drewwills/fbms'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            organization 'FBMS Developers'
+                            organizationUrl 'https://github.com/drewwills/fbms/graphs/contributors'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    release {
+        tagTemplate = 'v${version}' // Looks like it should be a GString, but not necessary
+        git {
+            requireBranch = ''
+        }
+    }
+    afterReleaseBuild.dependsOn uploadArchives
 }
