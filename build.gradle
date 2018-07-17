@@ -107,5 +107,6 @@ subprojects {
             requireBranch = ''
         }
     }
+    runBuildTasks.dependsOn 'fbms-webapp:bootWar'
     afterReleaseBuild.dependsOn uploadArchives
 }
