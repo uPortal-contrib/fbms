@@ -107,3 +107,4 @@ subprojects {
     }
     afterReleaseBuild.dependsOn uploadArchives
 }
+project.tasks.getByName('release').dependsOn(build)
