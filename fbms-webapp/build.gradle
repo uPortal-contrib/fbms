@@ -90,6 +90,7 @@ task bootRunDataImport(type: org.springframework.boot.gradle.tasks.run.BootRun) 
     }
 }
 
+signArchives.dependsOn war
 uploadArchives{
     repositories {
         mavenDeployer {
