@@ -15,6 +15,8 @@ subprojects {
     apply plugin: 'maven'   // Adds the 'install' task
     apply plugin: 'signing'
 
+    sourceCompatibility = 1.8
+
     repositories {
         mavenCentral()
         mavenLocal()
