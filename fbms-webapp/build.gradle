@@ -51,6 +51,22 @@ dependencies {
      */
     runtime 'org.springframework.boot:spring-boot-properties-migrator'
 
+
+    /*
+     * Bundle the form-builder UI as a webjar
+     *
+     * Solution based on this article:  http://www.baeldung.com/maven-webjars.  NOTE:  the
+     * org.webjars:webjars-locator part was attempted but does not appear to work.
+     */
+    compile("org.webjars.npm:uportal__form-builder:${formBuilderVersion}") {
+        /*
+         * The following are dependencies of form-builder as a Node project, but not (1) not
+         * available in Maven Central, and (2) not needed to use form-builder as a web component.
+         */
+        exclude group: 'org.webjars.npm', module: 'js-tokens'
+        exclude group: 'org.webjars.npm', module: 'lightercollective'
+        exclude group: 'org.webjars.npm', module: 'regenerator-runtime'
+    }
 }
 
 /**

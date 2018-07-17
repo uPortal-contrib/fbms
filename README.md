@@ -1,7 +1,19 @@
 # Form Builder Microservice (FBMS)
 
-The _Form Builder Microservice_ (FBMS) is REST-based "back end" for Form Builder capabilities
-designed for use with Apereo uPortal.
+The _Form Builder Microservice_ (FBMS) project is an Apereo uPortal Ecosystem component that brings
+a _Form Builder_ feature set to the portal.  This Git repo contains the sources for the _back-end_
+elements of this solution;  it bundles the user interface in the build process as a web component
+packaged in a webjar.  This web component is developed independently as the
+[uPortal-contrib/form-builder][] project.  Front- and back-end communicate exclusively through REST
+APIs.
+
+FBMS is developed with the following Java Platform technologies:
+
+  - Spring Boot
+  - Spring Security
+  - spring-data-jpa
+  - Hibernate
+  - Jackson (JSON)
 
 ## Running This Project
 
@@ -12,6 +24,104 @@ Use the Spring Boot Gradle Plugin to execute this project in a local development
 ```console
 $ ./gradlew fbms-webapp:bootRun
 ```
+
+## Using FBMS in uPortal
+
+FBMS does not need uPortal to run, but can be integrated with uPortal version 5.1 or higher.
+
+### Step One:  Bundling FBMS
+
+In uPortal-start, add an `overlays/fbms/build.gradle` file with the following contents:
+
+```groovy
+import org.apereo.portal.start.gradle.plugins.GradleImportExportPlugin
+
+apply plugin: GradleImportExportPlugin
+
+dependencies {
+    runtime "org.jasig.portal.fbms:fbms-webapp:${fbmsVersion}@war"
+    compile configurations.jdbc
+}
+
+war {
+    archiveName 'fbms.war'
+}
+
+/*
+ * Import/Export Support
+ */
+
+import org.apereo.portal.start.shell.PortalShellInvoker
+
+dependencies {
+    impexp configurations.jdbc
+    impexp 'org.springframework.boot:spring-boot-starter-tomcat:2.0.3.RELEASE' // Version should match FBMS
+}
+
+dataInit {
+    /*
+     * Drop (if present) then create the Hibernate-managed schema.
+     */
+    doLast {
+        File serverBase = rootProject.file(rootProject.ext['buildProperties'].getProperty('server.base'))
+        File deployDir = new File (serverBase, "webapps/${project.name}")
+
+        ant.setLifecycleLogLevel('INFO')
+        ant.java(fork: true, failonerror: true, dir: rootProject.projectDir, classname: 'org.apereo.portal.fbms.ApereoFbmsApplication') {
+            classpath {
+                pathelement(location: "${deployDir}/WEB-INF/classes")
+                pathelement(location: "${deployDir}/WEB-INF/lib/*")
+                project.configurations.impexp.files.each {
+                    pathelement(location: it.absolutePath)
+                }
+            }
+            sysproperty(key: 'portal.home', value: project.rootProject.ext['buildProperties'].getProperty('portal.home'))
+            arg(value: '--init')
+            arg(value: '--spring.jpa.hibernate.ddl-auto=create')
+        }
+    }
+    /*
+     * Import database entities located anywhere within the folder
+     * specified by 'implementation.entities.location'.
+     */
+    doLast {
+        File serverBase = rootProject.file(rootProject.ext['buildProperties'].getProperty('server.base'))
+        File deployDir = new File (serverBase, "webapps/${project.name}")
+        String implementationEntitiesLocation = PortalShellInvoker.createGroovySafePath(rootProject.ext['buildProperties'].getProperty('implementation.entities.location'))
+
+        ant.setLifecycleLogLevel('INFO')
+        ant.java(fork: true, failonerror: true, dir: rootProject.projectDir, classname: 'org.apereo.portal.fbms.ApereoFbmsApplication') {
+            classpath {
+                pathelement(location: "${deployDir}/WEB-INF/classes")
+                pathelement(location: "${deployDir}/WEB-INF/lib/*")
+                project.configurations.impexp.files.each {
+                    pathelement(location: it.absolutePath)
+                }
+            }
+            sysproperty(key: 'portal.home', value: project.rootProject.ext['buildProperties'].getProperty('portal.home'))
+            arg(value: '--import')
+            arg(value: "${implementationEntitiesLocation}/fbms")
+        }
+    }
+}
+```
+
+Also add `include 'overlays:fbms'` to your `settings.gradle` file.
+
+### Step Two:  Publishing a Form with FBMS
+
+Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
+
+```html
+<script src="/fbms/webjars/uportal__form-builder/0.1.2/build/static/js/form-builder.js"></script>
+<form-builder
+  fbms-base-url="/fbms"
+  fbms-form-fname="{form.fname}"
+  oidc-url="/uPortal/api/v5-1/userinfo">
+</form-builder>
+```
+
+Replace `{form.fname}` with the `fname` of your form.
 
 ## Configuration
 
@@ -87,4 +197,5 @@ parameter in the future.  Check this document for changes.
 FBMS provides API documentation based on [Swagger][].  You can access the Swagger client at
 `http[s]://hostname[:port]/swagger-ui.html`.
 
+[uPortal-contrib/form-builder]: https://github.com/uPortal-contrib/form-builder
 [Swagger]: https://swagger.io/
