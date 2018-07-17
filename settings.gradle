@@ -1,4 +1,4 @@
-rootProject.name = 'fbms'
+rootProject.name = 'fbms-parent'
 
 include 'fbms-core'
 include 'fbms-webapp'

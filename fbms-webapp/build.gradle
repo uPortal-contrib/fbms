@@ -13,15 +13,10 @@ buildscript {
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'java'
 apply plugin: 'war'
 
 configurations {
     providedRuntime
-}
-
-artifacts {
-    archives war
 }
 
 dependencies {
@@ -92,5 +87,38 @@ task bootRunDataImport(type: org.springframework.boot.gradle.tasks.run.BootRun) 
         main = 'org.apereo.portal.fbms.ApereoFbmsApplication' // Same as "normal"
         classpath = sourceSets.main.runtimeClasspath
         args = ['--import', "${rootProject.projectDir}/docs/examples"]
+    }
+}
+
+uploadArchives{
+    repositories {
+        mavenDeployer {
+            pom.project {
+                name 'fbms-webapp'
+                packaging 'war'
+                // optionally artifactId can be defined here
+                description 'Form Builder Microservice (FBMS) for the uPortal ecosystem, by Apereo'
+                url 'https://github.com/drewwills/fbms'
+
+                scm {
+                    connection 'scm:git:git://github.com/drewwills/fbms.git'
+                    url 'https://github.com/drewwills/fbms'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        organization 'FBMS Developers'
+                        organizationUrl 'https://github.com/drewwills/fbms/graphs/contributors'
+                    }
+                }
+            }
+        }
     }
 }
