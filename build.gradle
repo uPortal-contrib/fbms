@@ -107,6 +107,6 @@ subprojects {
             requireBranch = ''
         }
     }
-    runBuildTasks.dependsOn 'fbms-webapp:bootWar'
+    runBuildTasks.dependsOn 'fbms-webapp:bootWar' // Necessary b/c Spring Boot 2 monkeys with the normal war task
     afterReleaseBuild.dependsOn uploadArchives
 }
