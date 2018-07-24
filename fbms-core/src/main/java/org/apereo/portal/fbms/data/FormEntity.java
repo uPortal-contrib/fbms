@@ -38,12 +38,12 @@ public class FormEntity implements FbmsEntity {
     @EmbeddedId
     private FormIdentifier id;
 
-    @Column(name = "SCHEMA", length=100000, nullable = false)
+    @Column(name = "FORM_SCHEMA", length=100000, nullable = false)
     @Convert(converter = JsonNodeToStringAttributeConverter.class)
     @Lob
     private JsonNode schema;
 
-    @Column(name = "METADATA", length=100000)
+    @Column(name = "FORM_METADATA", length=100000)
     @Convert(converter = JsonNodeToStringAttributeConverter.class)
     @Lob
     private JsonNode metadata;
