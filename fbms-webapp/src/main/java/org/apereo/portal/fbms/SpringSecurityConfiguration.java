@@ -126,6 +126,11 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE,"/api/v1/submissions/*").denyAll()
 
                 /*
+                 * The OPTIONS method is allowed for any API URI to support CORS.
+                 */
+                .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+
+                /*
                  * JavaScript files may be accessed by anyone
                  */
                 .antMatchers(HttpMethod.GET,"/js/**").permitAll()
