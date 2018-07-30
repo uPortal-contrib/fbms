@@ -25,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides simple, consistent access to commonly-needed information about users.  <em>This bean
@@ -51,6 +53,15 @@ public class UserServices {
 
         return rslt;
 
+    }
+
+    public Set<String> getGroups(HttpServletRequest request) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final Set<String> rslt = authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.toSet());
+        logger.debug("Found the following group affiliations for username='{}':  {}", getUsername(request), rslt);
+        return rslt;
     }
 
 }
