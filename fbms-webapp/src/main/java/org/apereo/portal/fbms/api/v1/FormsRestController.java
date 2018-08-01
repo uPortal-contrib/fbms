@@ -26,13 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +45,7 @@ import java.util.stream.StreamSupport;
 /**
  * REST endpoints for accessing and manipulating {@link RestV1Form} objects.
  */
-@RestController
+@Controller
 @CrossOrigin(origins = "${org.apereo.portal.fbms.api.cors.origins:http://localhost:8080}")
 @RequestMapping(FormsRestController.API_ROOT)
 public class FormsRestController {
@@ -65,7 +66,7 @@ public class FormsRestController {
     /**
      * Provides a collection of forms that are viewable by the present user.
      */
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listForms() {
         final List<RestV1Form> rslt = StreamSupport.stream(formRepository.findAll().spliterator(), false)
                 .map(RestV1Form::fromEntity)
@@ -81,7 +82,7 @@ public class FormsRestController {
     /**
      * Obtains the {@link RestV1Form} with the specified <code>fname</code>.
      */
-    @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fname}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getFormByFname(@PathVariable("fname") String fname,
             HttpServletRequest request, HttpServletResponse response) {
 
@@ -117,7 +118,7 @@ public class FormsRestController {
     /**
      * Creates a new {@link RestV1Form} and assigns it an fname.
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UpdateStatus> createForm(@RequestBody RestV1Form form, HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -164,7 +165,7 @@ public class FormsRestController {
      * requirement prevents multiple submissions of the same JSON from incrementing the version
      * multiple times.
      */
-    @RequestMapping(value = "/{fname}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{fname}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UpdateStatus> updateForm(@PathVariable("fname") String fname,
             @RequestBody RestV1Form form, HttpServletRequest request, HttpServletResponse response) {
 

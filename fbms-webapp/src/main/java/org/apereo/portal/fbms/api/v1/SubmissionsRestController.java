@@ -31,13 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,7 +47,7 @@ import java.util.Objects;
 /**
  * REST endpoints for accessing and manipulating {@link RestV1Submission} objects.
  */
-@RestController
+@Controller
 @CrossOrigin(
         origins = "${org.apereo.portal.fbms.api.cors.origins:http://localhost:8080}",
         exposedHeaders = FormForwardingExtensionFilter.FORM_FORWARD_HEADER_NAME
@@ -77,7 +78,7 @@ public class SubmissionsRestController {
      * Obtains the user's most recent {@link RestV1Submission} to the {@link RestV1Form} with the
      * specified fname.
      */
-    @RequestMapping(value = "/{fname}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fname}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getOwnSubmission(@PathVariable("fname") String fname,
             HttpServletRequest request, HttpServletResponse response) {
 
@@ -113,7 +114,7 @@ public class SubmissionsRestController {
      * interaction creates a new {@link RestV1Submission} object.  It's up to clients whether they want
      * to deal with multiple submissions by the same user, or only the most recent.
      */
-    @RequestMapping(value = "/{fname}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{fname}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UpdateStatus> respond(@PathVariable("fname") String fname,
             @RequestBody RestV1Submission submission, HttpServletRequest request,
             HttpServletResponse response) {
@@ -207,7 +208,7 @@ public class SubmissionsRestController {
      * Obtains the most recent {@link RestV1Submission} to the specified {@link RestV1Form} by the
      * specified user.  Only privileged users have access to this API.
      */
-    @RequestMapping(value = "/{fname}/users/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{fname}/users/{username}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getSubmissionForUser(@PathVariable("fname") String fname,
             @PathVariable("username") String username, HttpServletRequest request,
             HttpServletResponse response) {
