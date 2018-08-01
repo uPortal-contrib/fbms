@@ -165,6 +165,11 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     }
 
+    @Bean("signatureKey")
+    public String signatureKey() {
+        return signatureKey;
+    }
+
     @Bean
     public AuthenticationManager authenticationManager() {
         return new SoffitApiAuthenticationManager();

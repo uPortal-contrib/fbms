@@ -18,13 +18,22 @@
  */
 package org.apereo.portal.fbms.util;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import org.apache.commons.lang3.StringUtils;
+import org.apereo.portal.soffit.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +43,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class UserServices {
+
+    @Resource(name = "signatureKey")
+    private String signatureKey;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -63,5 +75,37 @@ public class UserServices {
         logger.debug("Found the following group affiliations for username='{}':  {}", getUsername(request), rslt);
         return rslt;
     }
+
+    /**
+     * Custom claims are always multi-valued.
+     */
+    public List<Object> getCustomClaimValues(String claimName, HttpServletRequest request) {
+
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.isBlank(authHeader)
+                || !authHeader.startsWith(Headers.BEARER_TOKEN_PREFIX)) {
+            // No attribute without JWT...
+            return Collections.emptyList();
+        }
+
+        final String bearerToken = authHeader.substring(Headers.BEARER_TOKEN_PREFIX.length());
+
+        try {
+            // Validate & parse the JWT
+            final Jws<Claims> claims =
+                    Jwts.parser().setSigningKey(signatureKey).parseClaimsJws(bearerToken);
+            final List<Object> rslt = claims.getBody().get(claimName, List.class);
+            return rslt != null  // The get() method returns null for claims that aren't present;  we need an empty list.
+                    ? rslt
+                    : Collections.emptyList();
+        } catch (Exception e) {
+            logger.warn("The specified Bearer token is unusable:  '{}'", bearerToken);
+            logger.debug("Failed to validate and/or parse the specified Bearer token", e);
+        }
+
+        return Collections.emptyList();
+
+    }
+
 
 }

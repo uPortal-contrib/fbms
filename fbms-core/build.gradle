@@ -10,10 +10,12 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
     compile "org.apache.commons:commons-lang3:${commonsLang3Version}"
     compile "org.hibernate:hibernate-core:${hibernateVersion}"
+    compile "org.jasig.portal:uPortal-soffit-renderer:${uPortalVersion}"
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
     compile "org.springframework.data:spring-data-jpa:${springDataJpaVersion}"
     compile "org.springframework:spring-beans:${springVersion}"
     compile "org.springframework:spring-context:${springVersion}"
+    compile "org.springframework:spring-web:${springVersion}"
     compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
 
     compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
