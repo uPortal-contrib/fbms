@@ -35,35 +35,30 @@ dependencies {
     testCompile 'org.springframework.security:spring-security-test'
 
     /*
-     * TODO:  Remove this dependency.
+    * Bundle the form-builder UI as a webjar
+    *
+    * Solution based on this article:  http://www.baeldung.com/maven-webjars.  NOTE:  the
+    * org.webjars:webjars-locator part was attempted but does not appear to work.
+    */
+    compile "org.webjars.npm:uportal__form-builder:${formBuilderVersion}@jar"
+
+    /*
+     * HSQLDB Database Driver Jar
      *
      * It's not appropriate for components like FBMS to come with database drivers baked-in.  They
      * should be added by implementors, perhaps through an overlay in uPortal-start.  Including them
      * in the Apereo release leads to version conflicts.
+     *
+     * But if you're developing FBMS and running it independently of the portal, you may need to
+     * uncomment this dependency.
+     *
+     * runtime 'org.hsqldb:hsqldb:2.4.1'
      */
-    runtime 'org.hsqldb:hsqldb:2.4.1'
 
     /*
      * TODO:  Remove this one as well, once we're comforatble the migration to Spring Boot 2 is stable
      */
     runtime 'org.springframework.boot:spring-boot-properties-migrator'
-
-
-    /*
-     * Bundle the form-builder UI as a webjar
-     *
-     * Solution based on this article:  http://www.baeldung.com/maven-webjars.  NOTE:  the
-     * org.webjars:webjars-locator part was attempted but does not appear to work.
-     */
-    compile("org.webjars.npm:uportal__form-builder:${formBuilderVersion}") {
-        /*
-         * The following are dependencies of form-builder as a Node project, but not (1) not
-         * available in Maven Central, and (2) not needed to use form-builder as a web component.
-         */
-        exclude group: 'org.webjars.npm', module: 'js-tokens'
-        exclude group: 'org.webjars.npm', module: 'lightercollective'
-        exclude group: 'org.webjars.npm', module: 'regenerator-runtime'
-    }
 }
 
 /**
