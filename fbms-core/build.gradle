@@ -18,6 +18,6 @@ dependencies {
     compile "org.springframework:spring-web:${springVersion}"
     compile "org.springframework.security:spring-security-core:${springSecurityVersion}"
 
-    compileOnly "javax.servlet:servlet-api:${servletApiVersion}"
+    compileOnly "javax.servlet:javax.servlet-api:${servletApiVersion}"
 
 }
