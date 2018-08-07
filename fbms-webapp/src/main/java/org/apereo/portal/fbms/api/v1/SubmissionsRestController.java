@@ -18,8 +18,9 @@
  */
 package org.apereo.portal.fbms.api.v1;
 
-import org.apereo.portal.fbms.data.FilterChainAbortException;
-import org.apereo.portal.fbms.data.FilterChainBuilder;
+import org.apereo.portal.fbms.data.ExtensionFilterChainAbortException;
+import org.apereo.portal.fbms.data.ExtensionFilterChainBuilder;
+import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.data.SubmissionEntity;
@@ -64,7 +65,7 @@ public class SubmissionsRestController {
     private SubmissionRepository submissionRepository;
 
     @Autowired
-    private FilterChainBuilder filterChainBuilder;
+    private ExtensionFilterChainBuilder filterChainBuilder;
 
     @Autowired
     private FnameValidator fnameValidator;
@@ -91,8 +92,8 @@ public class SubmissionsRestController {
         final String username = userServices.getUsername(request);
 
         final SubmissionEntity entity =
-                filterChainBuilder.fromSupplier(request, response,
-                        () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
+                filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, SubmissionEntity.class),
+                        request, response, () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
                 ).get();
 
         if (entity != null) {
@@ -184,12 +185,13 @@ public class SubmissionsRestController {
         // Invoke the requested operation
         try {
             final SubmissionEntity entity = filterChainBuilder.fromUnaryOperator(
+                    new ExtensionFilterChainMetadata(fname, SubmissionEntity.class),
                     RestV1Submission.toEntity(submission),
                     request,
                     response,
                     (e) -> submissionRepository.save(e)
             ).get();
-        } catch (FilterChainAbortException fcae) {
+        } catch (ExtensionFilterChainAbortException fcae) {
             final String feedback = fcae.getFeedback() != null
                     ? fcae.getFeedback()
                     : "Invalid input(s)";
@@ -220,8 +222,8 @@ public class SubmissionsRestController {
         }
 
         final SubmissionEntity entity =
-                filterChainBuilder.fromSupplier(request, response,
-                        () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
+                filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, SubmissionEntity.class),
+                        request, response, () -> submissionRepository.findMostRecentByUsernameAndFname(username, fname)
                 ).get();
 
         if (entity != null) {

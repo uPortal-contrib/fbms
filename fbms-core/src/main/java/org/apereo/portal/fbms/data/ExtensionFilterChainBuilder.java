@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 @Component
-public class FilterChainBuilder {
+public class ExtensionFilterChainBuilder {
 
     @Autowired(required = false)
     private List<ExtensionFilter> filters;
@@ -53,8 +53,8 @@ public class FilterChainBuilder {
     /**
      * Builds a filter chain based on a <code>Supplier</code>.
      */
-    public <E extends FbmsEntity> Supplier<E> fromSupplier(HttpServletRequest request,
-            HttpServletResponse response, final Supplier<E> callback) {
+    public <E extends FbmsEntity> Supplier<E> fromSupplier(ExtensionFilterChainMetadata metadata,
+            HttpServletRequest request, HttpServletResponse response, final Supplier<E> callback) {
 
         /*
          * Wrap the callback in a FbmsFilterChain at the center of the "onion."
@@ -65,14 +65,14 @@ public class FilterChainBuilder {
          * Add layers of the onion
          */
         for (ExtensionFilter filter : filters) {
-            final boolean applies = filter.appliesTo(null, request);
+            final boolean applies = filter.appliesTo(metadata, null, request);
             logger.debug("FbmsFilter bean {} {} apply to request with URI='{}' and method='{}'",
                     filter,
                     applies ? "DOES" : "DOES NOT",
                     request.getRequestURI(),
                     request.getMethod());
             if (applies) {
-                chain = new ExtensionFilterChainImpl(filter, request, response, chain);
+                chain = new ExtensionFilterChainImpl(metadata, filter, request, response, chain);
             }
         }
 
@@ -84,7 +84,8 @@ public class FilterChainBuilder {
 
     }
 
-    public <E extends FbmsEntity> Supplier<E> fromUnaryOperator(E entity, HttpServletRequest request, HttpServletResponse response, final UnaryOperator<E> callback) {
+    public <E extends FbmsEntity> Supplier<E> fromUnaryOperator(ExtensionFilterChainMetadata metadata,
+            E entity, HttpServletRequest request, HttpServletResponse response, final UnaryOperator<E> callback) {
 
         /*
          * Wrap the callback in a FbmsFilterChain at the center of the "onion."
@@ -95,7 +96,7 @@ public class FilterChainBuilder {
          * Add layers of the onion
          */
         for (ExtensionFilter filter : filters) {
-            final boolean applies = filter.appliesTo(entity, request);
+            final boolean applies = filter.appliesTo(metadata, entity, request);
             logger.debug("FbmsFilter bean {} {} apply to request with URI='{}', method='{}', and entity='{}'",
                     filter,
                     applies ? "DOES" : "DOES NOT",
@@ -103,7 +104,7 @@ public class FilterChainBuilder {
                     request.getMethod(),
                     entity);
             if (applies) {
-                chain = new ExtensionFilterChainImpl(filter, request, response, chain);
+                chain = new ExtensionFilterChainImpl(metadata, filter, request, response, chain);
             }
         }
 
@@ -121,19 +122,27 @@ public class FilterChainBuilder {
 
     private static final class ExtensionFilterChainImpl<E extends FbmsEntity> implements ExtensionFilterChain<E> {
 
+        private final ExtensionFilterChainMetadata metadata;
         private final ExtensionFilter<E> enclosed;
         private final HttpServletRequest request;
         private final HttpServletResponse response;
         private final ExtensionFilterChain<E> nextLink;
 
-        /* package-private */ ExtensionFilterChainImpl(ExtensionFilter<E> enclosed,
-                HttpServletRequest request, HttpServletResponse response, ExtensionFilterChain<E> nextLink) {
+        /* package-private */ ExtensionFilterChainImpl(ExtensionFilterChainMetadata metadata,
+                ExtensionFilter<E> enclosed, HttpServletRequest request,
+                HttpServletResponse response, ExtensionFilterChain<E> nextLink) {
 
+            this.metadata = metadata;
             this.enclosed = enclosed;
             this.request = request;
             this.response = response;
             this.nextLink = nextLink;
 
+        }
+
+        @Override
+        public ExtensionFilterChainMetadata getMetadata() {
+            return metadata;
         }
 
         @Override

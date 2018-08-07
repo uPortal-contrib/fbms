@@ -20,6 +20,10 @@ package org.apereo.portal.fbms.data;
 
 public interface ExtensionFilterChain<E extends FbmsEntity> {
 
+    default ExtensionFilterChainMetadata getMetadata() {
+        throw new UnsupportedOperationException();
+    }
+
     E doFilter(E entity);
 
 }

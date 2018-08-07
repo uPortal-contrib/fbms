@@ -18,7 +18,8 @@
  */
 package org.apereo.portal.fbms.api.v1;
 
-import org.apereo.portal.fbms.data.FilterChainBuilder;
+import org.apereo.portal.fbms.data.ExtensionFilterChainBuilder;
+import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.util.FnameValidator;
@@ -59,7 +60,7 @@ public class FormsRestController {
     private FormRepository formRepository;
 
     @Autowired
-    private FilterChainBuilder filterChainBuilder;
+    private ExtensionFilterChainBuilder filterChainBuilder;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -93,8 +94,8 @@ public class FormsRestController {
         }
 
         final FormEntity entity =
-                filterChainBuilder.fromSupplier(request, response,
-                        () -> formRepository.findMostRecentByFname(fname)).get();
+                filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, FormEntity.class),
+                        request, response, () -> formRepository.findMostRecentByFname(fname)).get();
 
         if (entity != null) {
             return ResponseEntity
@@ -147,6 +148,7 @@ public class FormsRestController {
         form.setVersion(1);
 
         final FormEntity entity = filterChainBuilder.fromUnaryOperator(
+                new ExtensionFilterChainMetadata(form.getFname(), FormEntity.class),
                 RestV1Form.toEntity(form),
                 request,
                 response,
@@ -207,6 +209,7 @@ public class FormsRestController {
          * Save the RestV1Form as a new FormEntity
          */
         final FormEntity entity = filterChainBuilder.fromUnaryOperator(
+                new ExtensionFilterChainMetadata(fname, FormEntity.class),
                 RestV1Form.toEntity(form),
                 request,
                 response,

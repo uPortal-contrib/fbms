@@ -19,6 +19,7 @@
 package org.apereo.portal.fbms.data.filter;
 
 import org.apereo.portal.fbms.data.ExtensionFilterChain;
+import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FbmsEntity;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
@@ -35,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  * Form object.
  */
 @Component
-public class UpToDateExtensionFilter extends AbstractExtensionFilter<FbmsEntity> {
+public class UpToDateExtensionFilter extends AbstractExtensionFilter<SubmissionEntity> {
 
     public static final String UP_TO_DATE_HEADER_NAME = "X-FBMS-UpToDate";
 
@@ -43,24 +44,22 @@ public class UpToDateExtensionFilter extends AbstractExtensionFilter<FbmsEntity>
     private FormRepository formRepository;
 
     @Override
-    public boolean appliesTo(FbmsEntity entity, HttpServletRequest request) {
-        // Applies only to GET requests (further qualifications are evaluated below)
-        return request.getMethod().equalsIgnoreCase("GET");
+    public boolean appliesTo(ExtensionFilterChainMetadata metadata, FbmsEntity entity, HttpServletRequest request) {
+        // Applies only to GET requests for SubmissionEntity objects
+        return SubmissionEntity.class.equals(metadata.getEntityClass()) &&
+                request.getMethod().equalsIgnoreCase("GET");
     }
 
     @Override
-    public FbmsEntity doFilter(FbmsEntity entity, HttpServletRequest request,
-            HttpServletResponse response, ExtensionFilterChain<FbmsEntity> chain) {
+    public SubmissionEntity doFilter(SubmissionEntity entity, HttpServletRequest request,
+            HttpServletResponse response, ExtensionFilterChain<SubmissionEntity> chain) {
 
-        final FbmsEntity rslt = chain.doFilter(entity);
+        final SubmissionEntity rslt = chain.doFilter(entity);
 
-        /*
-         * We are only concerned with HTTP GET requests that return a single Submission object.
-         */
-        if (SubmissionEntity.class.isInstance(rslt)) {
-            final SubmissionEntity submission = (SubmissionEntity) rslt;
-            final FormEntity form = formRepository.findMostRecentByFname(submission.getId().getFname());
-            final boolean upToDate = submission.getId().getVersion() == form.getId().getVersion();
+        if (rslt != null) {
+            // Set the X-FBMS-UpToDate header
+            final FormEntity form = formRepository.findMostRecentByFname(rslt.getId().getFname());
+            final boolean upToDate = rslt.getId().getVersion() == form.getId().getVersion();
             response.setHeader(UP_TO_DATE_HEADER_NAME, Boolean.toString(upToDate));
         }
 

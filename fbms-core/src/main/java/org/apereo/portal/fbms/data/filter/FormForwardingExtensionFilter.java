@@ -20,6 +20,7 @@ package org.apereo.portal.fbms.data.filter;
 
 import org.apereo.portal.fbms.data.ExtensionFilter;
 import org.apereo.portal.fbms.data.ExtensionFilterChain;
+import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FbmsEntity;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.SubmissionEntity;
@@ -44,9 +45,9 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
     }
 
     @Override
-    public boolean appliesTo(FbmsEntity entity, HttpServletRequest request) {
+    public boolean appliesTo(ExtensionFilterChainMetadata metadata, FbmsEntity entity, HttpServletRequest request) {
         // Applies only when a Submission is posted
-        return SubmissionEntity.class.isInstance(entity)
+        return SubmissionEntity.class.equals(metadata.getEntityClass())
                 && request.getMethod().equalsIgnoreCase("POST");
     }
 

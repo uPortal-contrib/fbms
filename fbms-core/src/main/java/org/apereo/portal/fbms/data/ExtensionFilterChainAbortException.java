@@ -28,40 +28,40 @@ package org.apereo.portal.fbms.data;
  * optionally include a <code>feedback</code> property that will be communicated to the front-end
  * for possible display to users.
  */
-public class FilterChainAbortException extends RuntimeException {
+public class ExtensionFilterChainAbortException extends RuntimeException {
 
     private final String feedback;
 
-    public FilterChainAbortException() {
+    public ExtensionFilterChainAbortException() {
         this.feedback = null;
     }
 
-    public FilterChainAbortException(String message) {
+    public ExtensionFilterChainAbortException(String message) {
         super(message);
         this.feedback = null;
     }
 
-    public FilterChainAbortException(String message, Throwable cause) {
+    public ExtensionFilterChainAbortException(String message, Throwable cause) {
         super(message, cause);
         this.feedback = null;
     }
 
-    public FilterChainAbortException(Throwable cause) {
+    public ExtensionFilterChainAbortException(Throwable cause) {
         super(cause);
         this.feedback = null;
     }
 
-    public FilterChainAbortException(String message, String feedback) {
+    public ExtensionFilterChainAbortException(String message, String feedback) {
         super(message);
         this.feedback = feedback;
     }
 
-    public FilterChainAbortException(String message, Throwable cause, String feedback) {
+    public ExtensionFilterChainAbortException(String message, Throwable cause, String feedback) {
         super(message, cause);
         this.feedback = feedback;
     }
 
-    public FilterChainAbortException(Throwable cause, String feedback) {
+    public ExtensionFilterChainAbortException(Throwable cause, String feedback) {
         super(cause);
         this.feedback = feedback;
     }

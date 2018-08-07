@@ -50,7 +50,7 @@ public interface ExtensionFilter<E extends FbmsEntity> extends Ordered {
      * request and/or entity.  The decision can be based on HTTP method, URI, the user who sent it,
      * etc.  Filters that do not apply are not included in the filter chain.
      */
-    boolean appliesTo(FbmsEntity entity, HttpServletRequest request);
+    boolean appliesTo(ExtensionFilterChainMetadata metadata, FbmsEntity entity, HttpServletRequest request);
 
     /**
      * Invoke custom logic when an entity is created, read, updated, or deleted.
