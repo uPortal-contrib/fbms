@@ -54,11 +54,6 @@ dependencies {
      *
      * runtime 'org.hsqldb:hsqldb:2.4.1'
      */
-
-    /*
-     * TODO:  Remove this one as well, once we're comforatble the migration to Spring Boot 2 is stable
-     */
-    runtime 'org.springframework.boot:spring-boot-properties-migrator'
 }
 
 /**
