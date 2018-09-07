@@ -6,17 +6,21 @@ package org.apereo.portal.fbms.data;
  */
 public class ExtensionFilterChainMetadata {
 
-    private final String formFname;
+    private final String fname;
 
     private final Class<? extends FbmsEntity> entityClass;
 
-    public ExtensionFilterChainMetadata(String formFname, Class<? extends FbmsEntity> entityClass) {
-        this.formFname = formFname;
+    public ExtensionFilterChainMetadata(String fname, Class<? extends FbmsEntity> entityClass) {
+        this.fname = fname;
         this.entityClass = entityClass;
     }
 
-    public String getFormFname() {
-        return formFname;
+    /**
+     * Returns the fname of the relevant form (if the operation targets a form or a  submission), or
+     * <code>null</code> otherwise.
+     */
+    public String getFname() {
+        return fname;
     }
 
     public Class<? extends FbmsEntity> getEntityClass() {

@@ -27,6 +27,7 @@ import org.apereo.portal.fbms.data.SubmissionEntity;
 import org.apereo.portal.fbms.data.SubmissionRepository;
 import org.apereo.portal.fbms.data.filter.FormForwardingExtensionFilter;
 import org.apereo.portal.fbms.util.FnameValidator;
+import org.apereo.portal.fbms.util.MessageServices;
 import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ import java.util.Objects;
 @RequestMapping(SubmissionsRestController.API_ROOT)
 public class SubmissionsRestController {
 
-    public static final String API_ROOT = "/api/v1/submissions";
+    /* package-private */ static final String API_ROOT = "/api/v1/submissions";
 
     @Autowired
     private FormRepository formRepository;
@@ -72,6 +73,9 @@ public class SubmissionsRestController {
 
     @Autowired
     private UserServices userServices;
+
+    @Autowired
+    private MessageServices messageServices;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -184,7 +188,7 @@ public class SubmissionsRestController {
 
         // Invoke the requested operation
         try {
-            final SubmissionEntity entity = filterChainBuilder.fromUnaryOperator(
+            filterChainBuilder.fromUnaryOperator(
                     new ExtensionFilterChainMetadata(fname, SubmissionEntity.class),
                     RestV1Submission.toEntity(submission),
                     request,
@@ -192,17 +196,14 @@ public class SubmissionsRestController {
                     (e) -> submissionRepository.save(e)
             ).get();
         } catch (ExtensionFilterChainAbortException fcae) {
-            final String feedback = fcae.getFeedback() != null
-                    ? fcae.getFeedback()
-                    : "Invalid input(s)";
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(UpdateStatus.failure(feedback));
+                    .body(UpdateStatus.failure(messageServices.getMessages(request)));
         }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(UpdateStatus.success("Submission accepted for form with the following fname:  " + fname));
+                .body(UpdateStatus.success(messageServices.getMessages(request)));
 
     }
 

@@ -23,6 +23,7 @@ import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
 import org.apereo.portal.fbms.util.FnameValidator;
+import org.apereo.portal.fbms.util.MessageServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,9 @@ public class FormsRestController {
 
     @Autowired
     private ExtensionFilterChainBuilder filterChainBuilder;
+
+    @Autowired
+    private MessageServices messageServices;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -157,7 +161,7 @@ public class FormsRestController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(UpdateStatus.success("Created form with the following fname:  " + form.getFname()));
+                .body(UpdateStatus.success(messageServices.getMessages(request)));
 
     }
 
@@ -218,7 +222,7 @@ public class FormsRestController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(UpdateStatus.success("Updated form with the following fname:  " + fname));
+                .body(UpdateStatus.success(messageServices.getMessages(request)));
 
     }
 

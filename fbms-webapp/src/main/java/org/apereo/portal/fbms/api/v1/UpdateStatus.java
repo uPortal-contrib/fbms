@@ -40,8 +40,16 @@ public class UpdateStatus implements Serializable {
         return new UpdateStatus(true, Collections.singletonList(message));
     }
 
+    public static UpdateStatus success(List<String> messages) {
+        return new UpdateStatus(true, messages);
+    }
+
     public static UpdateStatus failure(String message) {
         return new UpdateStatus(false, Collections.singletonList(message));
+    }
+
+    public static UpdateStatus failure(List<String> messages) {
+        return new UpdateStatus(false, messages);
     }
 
     public boolean isSuccess() {

@@ -131,6 +131,15 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
 
                 /*
+                 * Extension URIs
+                 *
+                 * This one is a bit of an oddity -- an extension point for implementers.  URIs that
+                 * match this pattern are (1) available to unauthenticated requests and (2)decorated
+                 * with an ExtensionFilterChain.
+                 */
+                .antMatchers("/ext/**").permitAll()
+
+                /*
                  * JavaScript files may be accessed by anyone
                  */
                 .antMatchers(HttpMethod.GET,"/js/**").permitAll()

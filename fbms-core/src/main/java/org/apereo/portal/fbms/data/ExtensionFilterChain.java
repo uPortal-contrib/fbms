@@ -20,6 +20,10 @@ package org.apereo.portal.fbms.data;
 
 public interface ExtensionFilterChain<E extends FbmsEntity> {
 
+    /**
+     * Provides information about the current operation.  A default implementation provided so that
+     * {@link ExtensionFilterChain} qualifies as a Java 8 functional interface.
+     */
     default ExtensionFilterChainMetadata getMetadata() {
         throw new UnsupportedOperationException();
     }
