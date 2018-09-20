@@ -1,0 +1,13 @@
+{
+  "fname": "end-state-form-entity",
+  "version": 1,
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://localhost:8090/end-state-form-entity.json",
+    "title": "Thank You",
+    "description": "Thank you for updating our records.",
+    "type": "object",
+    "properties": {}
+  },
+  "metadata": {}
+}

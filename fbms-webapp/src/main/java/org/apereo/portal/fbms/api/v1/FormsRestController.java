@@ -27,6 +27,7 @@ import org.apereo.portal.fbms.util.MessageServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,9 @@ public class FormsRestController {
 
     @Autowired
     private FnameValidator fnameValidator;
+
+    @Autowired @Qualifier("endStateFormEntity")
+    private FormEntity endStateFormEntity;
 
     @Autowired
     private FormRepository formRepository;
@@ -95,6 +99,17 @@ public class FormsRestController {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("The specified fname is invalid:  " + fname);
+        }
+
+        /*
+         * Special Case:  endStateFormEntity
+         *
+         * This form is a memory-only (non-database) construct for completing a complex workflow.
+         */
+        if (endStateFormEntity.getId().getFname().equals(fname)) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(RestV1Form.fromEntity(endStateFormEntity));
         }
 
         final FormEntity entity =
