@@ -38,7 +38,7 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
 
     public static final String FORM_FORWARD_HEADER_NAME = "X-FBMS-FormForward";
 
-    private static final String FORM_FORWARD_SESSION_ATTRIBUTE = FormForwardingExtensionFilter.class.getName() + ".formForward";
+    private static final String FORM_FORWARD_REQUEST_ATTRIBUTE = FormForwardingExtensionFilter.class.getName() + ".formForward";
 
     public FormForwardingExtensionFilter() {
         super(ExtensionFilter.ORDER_EARLIEST); // First-in, last-out
@@ -60,8 +60,17 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
             throw new IllegalArgumentException("Argument 'form' cannot be null");
         }
 
-        request.setAttribute(FORM_FORWARD_SESSION_ATTRIBUTE, form);
+        request.setAttribute(FORM_FORWARD_REQUEST_ATTRIBUTE, form);
 
+    }
+
+    /**
+     * Answers the question whether the specified HTTP request already contains form-forwarding
+     * instructions or not.  There may be use cases where users must be forwarded to form B if they
+     * haven't already been directed to form A.
+     */
+    public boolean hasForward(HttpServletRequest request) {
+        return request.getParameter(FORM_FORWARD_REQUEST_ATTRIBUTE) != null;
     }
 
     @Override
@@ -69,7 +78,7 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
 
         final SubmissionEntity rslt = chain.doFilter(entity);
 
-        final FormEntity form = (FormEntity) request.getAttribute(FORM_FORWARD_SESSION_ATTRIBUTE);
+        final FormEntity form = (FormEntity) request.getAttribute(FORM_FORWARD_REQUEST_ATTRIBUTE);
         if (form != null) {
             // Send the user on to the specified form...
             response.setHeader(FORM_FORWARD_HEADER_NAME, form.getId().getFname());
