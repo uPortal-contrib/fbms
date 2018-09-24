@@ -70,7 +70,7 @@ public class FormForwardingExtensionFilter extends AbstractExtensionFilter<Submi
      * haven't already been directed to form A.
      */
     public boolean hasForward(HttpServletRequest request) {
-        return request.getParameter(FORM_FORWARD_REQUEST_ATTRIBUTE) != null;
+        return request.getAttribute(FORM_FORWARD_REQUEST_ATTRIBUTE) != null;
     }
 
     @Override
