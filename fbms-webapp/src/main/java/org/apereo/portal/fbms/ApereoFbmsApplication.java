@@ -20,8 +20,15 @@ package org.apereo.portal.fbms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 @SpringBootApplication
+@PropertySources({
+		@PropertySource(value = "classpath:fbms.properties"), // Must not be application.properties (https://stackoverflow.com/questions/42339226/spring-propertysources-value-not-overriding)
+		@PropertySource(value = "file:${portal.home}/global.properties", ignoreResourceNotFound = true), // Higher-priority
+		@PropertySource(value = "file:${portal.home}/fbms.properties", ignoreResourceNotFound = true) // Highest-priority
+})
 public class ApereoFbmsApplication {
 
 	public static void main(String[] args) {
