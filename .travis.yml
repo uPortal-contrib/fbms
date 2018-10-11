@@ -1,0 +1,12 @@
+language: java
+
+jdk:
+  - oraclejdk8
+  - openjdk8
+
+script:
+  - ./gradlew -u -S --no-daemon --no-parallel check
+
+cache:
+  directories:
+    - $HOME/.gradle/
