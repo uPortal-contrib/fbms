@@ -1,11 +1,11 @@
 # Form Builder Microservice (FBMS)
 
 The _Form Builder Microservice_ (FBMS) project is an Apereo uPortal Ecosystem component that adds
-a _Form Builder_ feature set to the portal.  This Git repo contains the sources for the _back-end_
-elements of this solution;  to use FBMS in uPortal, you must also include its _front-end_ component
-in uPortal-start.  This web component is developed independently as the
-[uPortal-contrib/form-builder][] project.  Front- and back-end communicate exclusively through REST
-APIs.
+Form Builder capabilities to uPortal.  This Git repo contains the sources for the _back-end_
+elements of this solution;  to use FBMS in uPortal, you must also include its _front-end_ component:
+`form-builder`.  The `form-builder` web component is developed independently at the following
+location:  [uPortal-contrib/form-builder][].  Front-end, back-end, and uPortal communicate
+exclusively through REST APIs.
 
 FBMS is developed with the following Java Platform technologies:
 
