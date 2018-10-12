@@ -144,6 +144,11 @@ $ ./gradlew fbms-webapp:bootRun
 
 ## Configuration
 
+:note: FBMS supports the standard uPortal convention for external configuration based on
+`$PORTAL_HOME`.  Use `global.properties` for settings that are shared between modules.  Use
+`fbms.properties` for settings that are exclusive to this module, or to override a setting defined
+in `global.properties`.
+
 ### CORS Support
 
 Browser-based clients for this microservice will often need to run on a different host or port.  In
