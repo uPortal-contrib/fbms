@@ -35,14 +35,6 @@ dependencies {
     testCompile 'org.springframework.security:spring-security-test'
 
     /*
-    * Bundle the form-builder UI as a webjar
-    *
-    * Solution based on this article:  http://www.baeldung.com/maven-webjars.  NOTE:  the
-    * org.webjars:webjars-locator part was attempted but does not appear to work.
-    */
-    compile "org.webjars.npm:uportal__form-builder:${formBuilderVersion}@jar"
-
-    /*
      * HSQLDB Database Driver Jar
      *
      * It's not appropriate for components like FBMS to come with database drivers baked-in.  They

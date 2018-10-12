@@ -1,11 +1,11 @@
 # Form Builder Microservice (FBMS)
 
-The _Form Builder Microservice_ (FBMS) project is an Apereo uPortal Ecosystem component that brings
-a _Form Builder_ feature set to the portal.  This Git repo contains the sources for the _back-end_
-elements of this solution;  it bundles the user interface in the build process as a web component
-packaged in a webjar.  This web component is developed independently as the
-[uPortal-contrib/form-builder][] project.  Front- and back-end communicate exclusively through REST
-APIs.
+The _Form Builder Microservice_ (FBMS) project is an Apereo uPortal Ecosystem component that adds
+Form Builder capabilities to uPortal.  This Git repo contains the sources for the _back-end_
+elements of this solution;  to use FBMS in uPortal, you must also include its _front-end_ component:
+`form-builder`.  The `form-builder` web component is developed independently at the following
+location:  [uPortal-contrib/form-builder][].  Front-end, back-end, and uPortal communicate
+exclusively through REST APIs.
 
 FBMS is developed with the following Java Platform technologies:
 
@@ -17,19 +17,11 @@ FBMS is developed with the following Java Platform technologies:
 
 ## Running This Project
 
-### Running in a Development Environment
-
-Use the Spring Boot Gradle Plugin to execute this project in a local development environment.
-
-```console
-$ ./gradlew fbms-webapp:bootRun
-```
-
-## Using FBMS in uPortal
+### Using FBMS in uPortal
 
 FBMS does not need uPortal to run, but can be integrated with uPortal version 5.1 or higher.
 
-### Step One:  Bundling FBMS
+#### Step One:  Bundling FBMS
 
 In uPortal-start, add an `overlays/fbms/build.gradle` file with the following contents:
 
@@ -108,7 +100,25 @@ dataInit {
 
 Also add `include 'overlays:fbms'` to your `settings.gradle` file.
 
-### Step Two:  Publishing a Form with FBMS
+### Step Two:  Bundling `form-builder`
+
+In uPortal-start, add the following to `overlays/resource-server/build.gradle` (inside the
+`dependencies {}` section):
+
+```
+runtime "org.webjars.npm:uportal__form-builder:${formBuilderVersion}@jar"
+```
+
+In uPortal-start, add the following to `gradle.properties` (under `# Versions of WebJars included with
+resource-server`):
+
+```
+formBuilderVersion=<version>
+```
+
+Replace `<version>` with the version (number) of `form-builder` you want to use.
+
+### Step Three:  Publishing a Form with FBMS
 
 Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
 
@@ -116,12 +126,21 @@ Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
 <script src="/fbms/webjars/uportal__form-builder/0.1.2/build/static/js/form-builder.js"></script>
 <form-builder
   fbms-base-url="/fbms"
-  fbms-form-fname="{form.fname}"
+  fbms-form-fname="<form.fname>"
   oidc-url="/uPortal/api/v5-1/userinfo">
 </form-builder>
 ```
 
-Replace `{form.fname}` with the `fname` of your form.
+Replace `<form.fname>` with the `fname` of your form (in FBMS).
+
+### Running FBMS with `bootRun`
+
+It is sometimes helpful to run FBMS without uPortal for development purposes.  Use the Spring
+Boot Gradle Plugin to launch this project from a local clone of FBMS (this repository).
+
+```console
+$ ./gradlew fbms-webapp:bootRun
+```
 
 ## Configuration
 
