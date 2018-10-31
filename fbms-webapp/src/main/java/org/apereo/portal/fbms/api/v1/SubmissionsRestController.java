@@ -101,9 +101,11 @@ public class SubmissionsRestController {
                 ).get();
 
         if (entity != null) {
+            final RestV1Submission rslt = RestV1Submission.fromEntity(entity);
+            logger.debug("Responding with the following submission for fname='{}' and username='{}':  {}", fname, username, rslt);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(RestV1Submission.fromEntity(entity));
+                    .body(rslt);
         } else {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
