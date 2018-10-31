@@ -30,47 +30,31 @@ package org.apereo.portal.fbms.data;
  */
 public class ExtensionFilterChainAbortException extends RuntimeException {
 
-    private final String feedback;
-
     public ExtensionFilterChainAbortException() {
-        this.feedback = null;
     }
 
     public ExtensionFilterChainAbortException(String message) {
         super(message);
-        this.feedback = null;
     }
 
     public ExtensionFilterChainAbortException(String message, Throwable cause) {
         super(message, cause);
-        this.feedback = null;
     }
 
     public ExtensionFilterChainAbortException(Throwable cause) {
         super(cause);
-        this.feedback = null;
     }
 
     public ExtensionFilterChainAbortException(String message, String feedback) {
         super(message);
-        this.feedback = feedback;
     }
 
     public ExtensionFilterChainAbortException(String message, Throwable cause, String feedback) {
         super(message, cause);
-        this.feedback = feedback;
     }
 
     public ExtensionFilterChainAbortException(Throwable cause, String feedback) {
         super(cause);
-        this.feedback = feedback;
-    }
-
-    /**
-     * Message primarily intended for user viewing.
-     */
-    public String getFeedback() {
-        return feedback;
     }
 
 }
