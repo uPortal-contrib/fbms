@@ -28,6 +28,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import static org.apereo.portal.soffit.service.AbstractJwtService.DEFAULT_SIGNATURE_KEY;
@@ -89,6 +90,24 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter.setAuthenticationManager(authenticationManager());
 
         http
+
+                /*
+                 * Use SessionCreationPolicy.STATELESS so that "Spring Security will never create an
+                 * HttpSession and it will never use it to obtain the SecurityContext."  This
+                 * approach means that every request needs an OIDC token.  (This change is intended
+                 * to address issues we were seeing on Sakari where a subsequent user would often
+                 * see a previous user's information.)
+                 */
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+                /*
+                 * Session fixation protection is provided by uPortal.  Since portlet tech requires
+                 * sessionCookiePath=/, we will make the portal unusable if other modules are changing
+                 * the sessionId as well.
+                 */
+                .sessionFixation().none()
+                .and()
 
                 /*
                  * Use the SoffitApiPreAuthenticatedProcessingFilter for identity.
@@ -156,21 +175,14 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
                  * Anything not covered by these rules is not permitted.
                  */
                 .anyRequest().denyAll()
-            .and()
+                .and()
 
                 /*
                  * CSRF defense is not required because FBMS uses Bearer token AuthN instead of
                  * Basic or cookie-based.
                  * See https://security.stackexchange.com/questions/170388/do-i-need-csrf-token-if-im-using-bearer-jwt.
                  */
-                .csrf().disable()
-
-                /*
-                 * Session fixation protection is provided by uPortal.  Since portlet tech requires
-                 * sessionCookiePath=/, we will make the portal unusable if other modules are changing
-                 * the sessionId as well.
-                 */
-                .sessionManagement().sessionFixation().none();
+                .csrf().disable();
 
     }
 
