@@ -34,10 +34,14 @@ import java.util.function.UnaryOperator;
 @Component
 public class ExtensionFilterChainBuilder {
 
-    @Autowired(required = false)
     private List<ExtensionFilter> filters;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Autowired(required = false)
+    public void setFilters(List<ExtensionFilter> filters) {
+        this.filters = filters;
+    }
 
     @PostConstruct
     public void init() {
