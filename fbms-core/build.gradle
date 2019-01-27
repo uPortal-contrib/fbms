@@ -20,4 +20,12 @@ dependencies {
 
     compileOnly "javax.servlet:javax.servlet-api:${servletApiVersion}"
 
+    // JUnit 5 dependencies
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junit5Version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:${junit5Version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-migrationsupport:${junit5Version}"
+    testImplementation "org.junit.platform:junit-platform-runner:${junitPlatformVersion}"
+
+    testImplementation "javax.servlet:javax.servlet-api:${servletApiVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
 }
