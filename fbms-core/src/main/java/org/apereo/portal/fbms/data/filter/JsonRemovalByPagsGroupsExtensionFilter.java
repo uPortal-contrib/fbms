@@ -34,6 +34,8 @@ import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,9 +49,9 @@ import java.util.Set;
  * If the user matches a set of PAGS group names (or the inverse),
  * remove the specified JSON path(s)
  */
-public class JsonSchemaExtensionFilter extends AbstractExtensionFilter<FbmsEntity> {
+public class JsonRemovalByPagsGroupsExtensionFilter extends AbstractExtensionFilter<FormEntity> {
 
-    private static final Set<String> RELEVANT_HTTP_METHODS = new HashSet<>(Arrays.asList("GET"));
+    private static final Set<HttpMethod> RELEVANT_HTTP_METHODS = new HashSet<HttpMethod>(Arrays.asList(HttpMethod.GET));
 
     @Autowired
     private UserServices userServices;
@@ -72,7 +74,7 @@ public class JsonSchemaExtensionFilter extends AbstractExtensionFilter<FbmsEntit
     private boolean inverseFlag = false;
     private String targetForm = "";
 
-    public JsonSchemaExtensionFilter(String targetForm, List<String> targetGroups, Map<String, List<String>> jsonToRemove, boolean inverseFlag) {
+    public JsonRemovalByPagsGroupsExtensionFilter(String targetForm, List<String> targetGroups, Map<String, List<String>> jsonToRemove, boolean inverseFlag) {
         super(ExtensionFilter.ORDER_LATE); // Close to the data source
         this.targetForm = targetForm;
         this.targetGroups = targetGroups;
@@ -84,22 +86,21 @@ public class JsonSchemaExtensionFilter extends AbstractExtensionFilter<FbmsEntit
     public boolean appliesTo(ExtensionFilterChainMetadata metadata, FbmsEntity entity, HttpServletRequest request) {
         // Check if this form should use this filter
         // targetForm must be supplied since we need a reference to the json structure
-        boolean appliesToForm = (this.targetForm != null) &&
-                !this.targetForm.isEmpty() &&
+        boolean appliesToForm = !StringUtils.isEmpty(this.targetForm) &&
+                FormEntity.class.equals(metadata.getEntityClass()) && // Must be a Form object (not a submission)
                 this.targetForm.equalsIgnoreCase(metadata.getFname());
-        return appliesToForm && RELEVANT_HTTP_METHODS.contains(request.getMethod().toUpperCase());
+        return appliesToForm && RELEVANT_HTTP_METHODS.contains(HttpMethod.valueOf(request.getMethod().toUpperCase()));
     }
 
     @Override
-    public FbmsEntity doFilter(FbmsEntity entity, HttpServletRequest request, HttpServletResponse response, ExtensionFilterChain<FbmsEntity> chain) {
+    public FormEntity doFilter(FormEntity entity, HttpServletRequest request, HttpServletResponse response, ExtensionFilterChain<FormEntity> chain) {
 
-        FbmsEntity rslt = entity;
-
+        FormEntity rslt = entity;
         // Repository interaction
         rslt = chain.doFilter(rslt);
-        if ((targetGroups == null) || (jsonToRemove == null)) {
+        if ((targetGroups == null) || (jsonToRemove == null) || (rslt == null) || (rslt.getSchema() == null)) {
             //Skip the filter
-            logger.warn("Target groups or JSON keys to remove is null.  Skipping this filter.");
+            logger.warn("Target groups, JSON keys, form, or form schema is null.  Skipping this filter.");
         } else {
             String username = userServices.getUsername(request);
             Set<String> associatedGroups = userServices.getGroups(request);
@@ -110,15 +111,15 @@ public class JsonSchemaExtensionFilter extends AbstractExtensionFilter<FbmsEntit
                 logger.debug("User [{}] in groups [{}] is associated with at least one of the targeted groups of [{}] " +
                                 "and flag is set to remove if user is included.  Removing the JSON at [{}]",
                         username, associatedGroups, targetGroups, jsonToRemove);
-                removeJson(jsonToRemove);
+                removeJson(jsonToRemove, rslt);
             } else if (!associated && inverseFlag) {
                 logger.debug("User [{}] in groups [{}] is not associated with any of the targeted groups of [{}] " +
                                 "and flag is set to remove if user is not included.  Removing the JSON at [{}]",
                         username, associatedGroups, targetGroups, jsonToRemove);
-                removeJson(jsonToRemove);
+                removeJson(jsonToRemove, rslt);
             } else {
-                logger.debug("Not changing the JSON - User [{}], groups [{}], targeted groups of [{}], inverse flag [{}].",
-                        username, associatedGroups, targetGroups, inverseFlag);
+                logger.debug("Not changing the JSON - User [{}], groups [{}], targeted groups of [{}], inverse flag [{}], JSON [{}].",
+                        username, associatedGroups, targetGroups, inverseFlag, jsonToRemove);
             }
         }
 
@@ -135,10 +136,9 @@ public class JsonSchemaExtensionFilter extends AbstractExtensionFilter<FbmsEntit
         return false;
     }
 
-    private void removeJson(Map<String, List<String>> jsonPaths) {
+    private void removeJson(Map<String, List<String>> jsonPaths, FormEntity form) {
         // We need a reference to the form...
-        final FormEntity form = formRepository.findMostRecentByFname(this.targetForm);
-
+        logger.debug("Before removing [{}], original JSON = [{}]", jsonPaths, form.getSchema().toString());
         for (String pointer : jsonPaths.keySet()) {
             final JsonNode targetedNode = form.getSchema().at(pointer);
             if (!targetedNode.isMissingNode()) {
@@ -155,5 +155,7 @@ public class JsonSchemaExtensionFilter extends AbstractExtensionFilter<FbmsEntit
                 logger.warn("Unable to find form [{}] node of [{}]", this.targetForm, pointer);
             }
         }
+        logger.debug("After removing [{}], resulting JSON = [{}]", jsonPaths, form.getSchema().toString());
+
     }
 }
