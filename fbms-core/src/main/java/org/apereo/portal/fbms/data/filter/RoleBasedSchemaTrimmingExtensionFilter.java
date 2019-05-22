@@ -27,7 +27,6 @@ import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FbmsEntity;
 import org.apereo.portal.fbms.data.FormEntity;
 import org.apereo.portal.fbms.data.FormRepository;
-import org.apereo.portal.fbms.data.filter.AbstractExtensionFilter;
 import org.apereo.portal.fbms.util.JsonServices;
 import org.apereo.portal.fbms.util.MessageServices;
 import org.apereo.portal.fbms.util.UserServices;
@@ -46,10 +45,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * If the user matches a set of PAGS group names (or the inverse),
+ * If the user matches a set of group names (or the inverse),
  * remove the specified JSON path(s)
  */
-public class JsonRemovalByPagsGroupsExtensionFilter extends AbstractExtensionFilter<FormEntity> {
+public class RoleBasedSchemaTrimmingExtensionFilter extends AbstractExtensionFilter<FormEntity> {
 
     private static final Set<HttpMethod> RELEVANT_HTTP_METHODS = new HashSet<HttpMethod>(Arrays.asList(HttpMethod.GET));
 
@@ -74,7 +73,7 @@ public class JsonRemovalByPagsGroupsExtensionFilter extends AbstractExtensionFil
     private boolean inverseFlag = false;
     private String targetForm = "";
 
-    public JsonRemovalByPagsGroupsExtensionFilter(String targetForm, List<String> targetGroups, Map<String, List<String>> jsonToRemove, boolean inverseFlag) {
+    public RoleBasedSchemaTrimmingExtensionFilter(String targetForm, List<String> targetGroups, Map<String, List<String>> jsonToRemove, boolean inverseFlag) {
         super(ExtensionFilter.ORDER_LATE); // Close to the data source
         this.targetForm = targetForm;
         this.targetGroups = targetGroups;
