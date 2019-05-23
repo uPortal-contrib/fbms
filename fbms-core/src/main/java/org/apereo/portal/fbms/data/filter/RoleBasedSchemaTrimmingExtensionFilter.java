@@ -19,16 +19,12 @@
 package org.apereo.portal.fbms.data.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apereo.portal.fbms.data.ExtensionFilter;
 import org.apereo.portal.fbms.data.ExtensionFilterChain;
 import org.apereo.portal.fbms.data.ExtensionFilterChainMetadata;
 import org.apereo.portal.fbms.data.FbmsEntity;
 import org.apereo.portal.fbms.data.FormEntity;
-import org.apereo.portal.fbms.data.FormRepository;
-import org.apereo.portal.fbms.util.JsonServices;
-import org.apereo.portal.fbms.util.MessageServices;
 import org.apereo.portal.fbms.util.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +34,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,30 +46,21 @@ import java.util.Set;
  */
 public class RoleBasedSchemaTrimmingExtensionFilter extends AbstractExtensionFilter<FormEntity> {
 
-    private static final Set<HttpMethod> RELEVANT_HTTP_METHODS = new HashSet<HttpMethod>(Arrays.asList(HttpMethod.GET));
+    private static final Set<HttpMethod> RELEVANT_HTTP_METHODS =
+            new HashSet<>(Collections.singletonList(HttpMethod.GET));
 
     @Autowired
     private UserServices userServices;
-
-    @Autowired
-    private JsonServices jsonServices;
-
-    @Autowired
-    private FormRepository formRepository;
-
-    @Autowired
-    private MessageServices messageServices;
-
-    private final ObjectMapper mapper = new ObjectMapper();
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private List<String> targetGroups;
     private Map<String, List<String>> jsonToRemove;
-    private boolean inverseFlag = false;
-    private String targetForm = "";
+    private final boolean inverseFlag;
+    private final String targetForm;
 
-    public RoleBasedSchemaTrimmingExtensionFilter(String targetForm, List<String> targetGroups, Map<String, List<String>> jsonToRemove, boolean inverseFlag) {
+    public RoleBasedSchemaTrimmingExtensionFilter(String targetForm, List<String> targetGroups,
+            Map<String, List<String>> jsonToRemove, boolean inverseFlag) {
         super(ExtensionFilter.ORDER_LATE); // Close to the data source
         this.targetForm = targetForm;
         this.targetGroups = targetGroups;
@@ -92,7 +79,8 @@ public class RoleBasedSchemaTrimmingExtensionFilter extends AbstractExtensionFil
     }
 
     @Override
-    public FormEntity doFilter(FormEntity entity, HttpServletRequest request, HttpServletResponse response, ExtensionFilterChain<FormEntity> chain) {
+    public FormEntity doFilter(FormEntity entity, HttpServletRequest request,
+            HttpServletResponse response, ExtensionFilterChain<FormEntity> chain) {
 
         FormEntity rslt = entity;
         // Repository interaction
@@ -142,13 +130,13 @@ public class RoleBasedSchemaTrimmingExtensionFilter extends AbstractExtensionFil
             final JsonNode targetedNode = form.getSchema().at(pointer);
             if (!targetedNode.isMissingNode()) {
                 try {
-                    final ObjectNode objectNode = (ObjectNode) targetedNode;
                     for (String key : jsonPaths.get(pointer)) {
                         logger.debug("Removing [{}]:[{}]", pointer, key);
                         ((ObjectNode) targetedNode).remove(key);
                     }
                 } catch (Exception e) {
-                    logger.warn("Unable to cast the JSON pointer [{}] to an object and/or remove the key(s) [{}]", pointer, jsonPaths.get(pointer));
+                    logger.warn("Unable to cast the JSON pointer [{}] to an object and/or remove the key(s) [{}]",
+                            pointer, jsonPaths.get(pointer));
                 }
             } else {
                 logger.warn("Unable to find form [{}] node of [{}]", this.targetForm, pointer);
