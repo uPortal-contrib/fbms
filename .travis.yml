@@ -5,7 +5,7 @@ jdk:
   - openjdk8
 
 script:
-  - ./gradlew -u -S --no-daemon --no-parallel check
+  - ./gradlew -S --no-daemon --no-parallel check
 
 cache:
   directories:
