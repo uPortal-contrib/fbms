@@ -114,7 +114,7 @@ public class FormsRestController {
 
         final FormEntity entity =
                 filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, FormEntity.class),
-                        request, response, () -> formRepository.findMostRecentByFname(fname)).get();
+                        request, response, () -> formRepository.findFirstByFnameOrderByVersionDesc(fname)).get();
 
         if (entity != null) {
             return ResponseEntity
@@ -211,7 +211,7 @@ public class FormsRestController {
                             + fname + "')"));
         }
 
-        final FormEntity previousVersion = formRepository.findMostRecentByFname(fname);
+        final FormEntity previousVersion = formRepository.findFirstByFnameOrderByVersionDesc(fname);
         final int expectedVersionNumber = previousVersion.getId().getVersion() + 1;
         if (!Objects.equals(form.getVersion(), expectedVersionNumber)) {
             /*
