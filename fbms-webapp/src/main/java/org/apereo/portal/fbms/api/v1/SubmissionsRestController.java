@@ -97,7 +97,7 @@ public class SubmissionsRestController {
 
         final SubmissionEntity entity =
                 filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, SubmissionEntity.class),
-                        request, response, () -> submissionRepository.findFirstByUsernameAndFnameOrderByTimestampDesc(username, fname)
+                        request, response, () -> submissionRepository.findFirstByIdUsernameAndIdFnameOrderByIdTimestampDesc(username, fname)
                 ).get();
 
         if (entity != null) {
@@ -140,7 +140,7 @@ public class SubmissionsRestController {
                     .body(UpdateStatus.failure("Incorrect username"));
         }
 
-        final FormEntity formEntity = formRepository.findFirstByFnameOrderByVersionDesc(fname);
+        final FormEntity formEntity = formRepository.findFirstByIdFnameOrderByIdVersionDesc(fname);
         if (formEntity == null) {
             /*
              * There must be a Form with the specified fname
@@ -176,7 +176,7 @@ public class SubmissionsRestController {
         }
 
         final SubmissionEntity mostRecent =
-                submissionRepository.findFirstByUsernameAndFnameOrderByTimestampDesc(username, fname);
+                submissionRepository.findFirstByIdUsernameAndIdFnameOrderByIdTimestampDesc(username, fname);
         if (mostRecent != null && submission.getTimestamp() < mostRecent.getId().getTimestamp().getTime()) {
             /*
              * The submission must be newer than the most recent one we already have
@@ -226,7 +226,7 @@ public class SubmissionsRestController {
 
         final SubmissionEntity entity =
                 filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, SubmissionEntity.class),
-                        request, response, () -> submissionRepository.findFirstByUsernameAndFnameOrderByTimestampDesc(username, fname)
+                        request, response, () -> submissionRepository.findFirstByIdUsernameAndIdFnameOrderByIdTimestampDesc(username, fname)
                 ).get();
 
         if (entity != null) {

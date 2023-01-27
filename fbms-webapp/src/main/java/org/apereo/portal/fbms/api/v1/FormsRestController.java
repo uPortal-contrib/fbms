@@ -114,7 +114,7 @@ public class FormsRestController {
 
         final FormEntity entity =
                 filterChainBuilder.fromSupplier(new ExtensionFilterChainMetadata(fname, FormEntity.class),
-                        request, response, () -> formRepository.findFirstByFnameOrderByVersionDesc(fname)).get();
+                        request, response, () -> formRepository.findFirstByIdFnameOrderByIdVersionDesc(fname)).get();
 
         if (entity != null) {
             return ResponseEntity
@@ -145,7 +145,7 @@ public class FormsRestController {
         logger.debug("Received the following RestV1Form at {} {}:  {}",
                 API_ROOT, RequestMethod.POST, form);
 
-        if (formRepository.existsByFname(form.getFname())) {
+        if (formRepository.existsByIdFname(form.getFname())) {
             /*
              * We already have a Form with this fname;  we cannot accept this new one.
              */
@@ -193,7 +193,7 @@ public class FormsRestController {
         logger.debug("Received the following RestV1Form at {}/{} {}:\n{}",
                 API_ROOT, form.getFname(), RequestMethod.PUT, form);
 
-        if (!formRepository.existsByFname(form.getFname())) {
+        if (!formRepository.existsByIdFname(form.getFname())) {
             /*
              * The specified form must already exist
              */
@@ -211,7 +211,7 @@ public class FormsRestController {
                             + fname + "')"));
         }
 
-        final FormEntity previousVersion = formRepository.findFirstByFnameOrderByVersionDesc(fname);
+        final FormEntity previousVersion = formRepository.findFirstByIdFnameOrderByIdVersionDesc(fname);
         final int expectedVersionNumber = previousVersion.getId().getVersion() + 1;
         if (!Objects.equals(form.getVersion(), expectedVersionNumber)) {
             /*

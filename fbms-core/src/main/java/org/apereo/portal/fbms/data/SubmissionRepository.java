@@ -28,6 +28,6 @@ public interface SubmissionRepository extends CrudRepository<SubmissionEntity,Su
 
     //List<SubmissionEntity> findByUsernameAndFnameOrderByTimestampDesc(String username, String fname);
 
-    SubmissionEntity findFirstByUsernameAndFnameOrderByTimestampDesc(String username, String fname);
+    SubmissionEntity findFirstByIdUsernameAndIdFnameOrderByIdTimestampDesc(String username, String fname);
 
 }
