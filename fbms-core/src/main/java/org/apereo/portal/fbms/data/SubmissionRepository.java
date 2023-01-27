@@ -26,8 +26,6 @@ import java.util.List;
 
 public interface SubmissionRepository extends CrudRepository<SubmissionEntity,SubmissionIdentifier> {
 
-    //List<SubmissionEntity> findByUsernameAndFnameOrderByTimestampDesc(String username, String fname);
-
     SubmissionEntity findFirstByIdUsernameAndIdFnameOrderByIdTimestampDesc(String username, String fname);
 
 }
