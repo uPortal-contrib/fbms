@@ -24,9 +24,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface FormRepository extends CrudRepository<FormEntity,FormIdentifier> {
 
-    default boolean existsByIdFname(String fname) {
-      return findFirstByIdFnameOrderByIdVersionDesc(fname) != null;
-    }
+    boolean existsByIdFname(String fname);
 
     FormEntity findFirstByIdFnameOrderByIdVersionDesc(String fname);
 
