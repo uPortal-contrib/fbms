@@ -160,14 +160,13 @@ Or, if you want to re-initialize all uPortal, portlet and FBMS data:
 Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
 
 ```html
-<script src="/fbms/webjars/uportal__form-builder/0.1.2/build/static/js/form-builder.js"></script>
+<script src="/resource-server/webjars/uportal__form-builder/build/static/js/form-builder.js"></script>
 <form-builder
   fbms-base-url="/fbms"
   fbms-form-fname="<form.fname>"
   oidc-url="/uPortal/api/v5-1/userinfo">
 </form-builder>
 ```
-
 Replace `<form.fname>` with the `fname` of your form (in FBMS).
 
 ### Running FBMS with `bootRun`
