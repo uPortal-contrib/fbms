@@ -135,6 +135,7 @@ resource-server`):
 formBuilderVersion=<version>
 ```
 Replace `<version>` with the version (number) of `form-builder` you want to use.
+See https://mvnrepository.com/artifact/org.webjars.npm/uportal__form-builder
 
 #### Step Three:  Initialize FBMS Database Tables
 
@@ -167,7 +168,27 @@ Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
   oidc-url="/uPortal/api/v5-1/userinfo">
 </form-builder>
 ```
-Replace `<form.fname>` with the `fname` of your form (in FBMS).
+
+Replace `<form.fname>` with the `fname` of your form (in FBMS). The form's `fname` can be found in its definition file.
+These were the files added to `data/quickstart/fbms/`.
+
+### Final Step: Provide uPortal's Signature Key to FBMS
+
+Finally, we need to provide the signature key that uPortal uses to sign the user's JWT for authentication.
+This is usually found in uPortal-start's `etc/portal/uPortal.properties` or may have been moved to `global.properties`
+in the same directory. It may be commented out to use the default, but the default entry should be there:
+```properties
+org.apereo.portal.soffit.jwt.signatureKey=CHANGEMEBx0myZ/pv/e7+xrdDLYGC1iIzSa6Uw5CPpH0KCCS1deESk3v+b+LYMz1ks57tjFb9vudpSCyRKXO5TeEBc45rfMyGtkRa1zri+hukZIAfgrvCbFixpCBxBusRs+uhXRuLxOe6k77VE+EMM4jVJArtNBgVPyV7iOC05kHNiYIGgs=
+```
+Again, this is the default. Your uPortal-start may have a different value.
+
+1. Copy this into `etc/portal/fbms.properties`.
+2. Copy this file into your $PORTAL_HOME directory, usually in uPortal-start at `./gradle/tomcat/portal/`
+3. Restart Tomcat
+
+This Completes the uPortal Setup Instructions
+
+---------------------------
 
 ### Running FBMS with `bootRun`
 
