@@ -58,7 +58,7 @@ public class UpToDateExtensionFilter extends AbstractExtensionFilter<SubmissionE
 
         if (rslt != null) {
             // Set the X-FBMS-UpToDate header
-            final FormEntity form = formRepository.findMostRecentByFname(rslt.getId().getFname());
+            final FormEntity form = formRepository.findFirstByIdFnameOrderByIdVersionDesc(rslt.getId().getFname());
             final boolean upToDate = rslt.getId().getVersion() == form.getId().getVersion();
             response.setHeader(UP_TO_DATE_HEADER_NAME, Boolean.toString(upToDate));
         }

@@ -24,11 +24,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface FormRepository extends CrudRepository<FormEntity,FormIdentifier> {
 
-    default boolean existsByFname(String fname) {
-        return findMostRecentByFname(fname) != null;
-    }
+    boolean existsByIdFname(String fname);
 
-    @Query("SELECT f FROM FormEntity f WHERE f.id.version = (SELECT MAX(b.id.version) from FormEntity b WHERE b.id.fname = :fname) AND f.id.fname = :fname")
-    FormEntity findMostRecentByFname(@Param("fname") String fname);
+    FormEntity findFirstByIdFnameOrderByIdVersionDesc(String fname);
 
 }

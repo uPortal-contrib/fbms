@@ -131,7 +131,7 @@ public class ImportExportSupport implements CommandLineRunner {
     private void importJsonFile(Path location) throws IOException {
         try (InputStream inpt = Files.newInputStream(location)) {
             final RestV1Form form = mapper.readValue(inpt, RestV1Form.class);
-            if (formRepository.existsByFname(form.getFname())) {
+            if (formRepository.existsByIdFname(form.getFname())) {
                 logger.warn("Unable to import the Form at location {};  a Form with fname='{}' already exists",
                         location, form.getFname());
             } else {
