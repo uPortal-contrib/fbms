@@ -21,6 +21,16 @@ FBMS is developed with the following Java Platform technologies:
 
 FBMS does not need uPortal to run, but can be integrated with uPortal version 5.1 or higher.
 
+If you are not setting up a released version of FBMS, run the following to create a snapshot WAR file for FBMS:
+
+```shell
+./gradlew clean build install
+```
+Note the version for this snapshot that can be found in `gradle.properties`.
+ 
+The remaining steps are ALL completed in your uPortal-start repo.
+
+
 #### Step One:  Bundling FBMS
 
 In uPortal-start, add an `overlays/fbms/build.gradle` file with the following contents:
@@ -98,32 +108,60 @@ dataInit {
 }
 ```
 
-Also add `include 'overlays:fbms'` to your `settings.gradle` file.
+Add the following to `gradle.properties` file 
+```groovy
+fbmsVersion=<version>
+```
+Replace `<version>` with the version (number) of FBMS you want to use.
 
-### Step Two:  Bundling `form-builder`
+Add the following to `settings.gradle` file
+```groovy
+include 'overlays:fbms'
+```
 
-In uPortal-start, add the following to `overlays/resource-server/build.gradle` (inside the
+#### Step Two:  Bundling `form-builder`
+
+Add the following to `overlays/resource-server/build.gradle` (inside the
 `dependencies {}` section):
 
 ```
 runtime "org.webjars.npm:uportal__form-builder:${formBuilderVersion}@jar"
 ```
 
-In uPortal-start, add the following to `gradle.properties` (under `# Versions of WebJars included with
+Add the following to `gradle.properties` (under `# Versions of WebJars included with
 resource-server`):
 
 ```
 formBuilderVersion=<version>
 ```
-
 Replace `<version>` with the version (number) of `form-builder` you want to use.
+See https://mvnrepository.com/artifact/org.webjars.npm/uportal__form-builder
 
-### Step Three:  Publishing a Form with FBMS
+#### Step Three:  Initialize FBMS Database Tables
+
+Form definition JSON files should be copied into a new directory under `data/quickstart/` (or your specific dataset)
+named `fbms`. For example:
+```shell
+mkdir data/quickstart/fbms
+cp <fbms_repo_dir>/docs/examples/*.json data/quickstart/fbms/
+```
+
+Then, run one of the following to initialize the FBMS data.
+
+To initialize _just_ the FBMS tables and data, run:
+```shell
+./gradlew :overlays:fbms:dataInit
+```
+Or, if you want to re-initialize all uPortal, portlet and FBMS data:
+```shell
+./gradlew dataInit
+```
+#### Step Four:  Publishing a Form with FBMS
 
 Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
 
 ```html
-<script src="/fbms/webjars/uportal__form-builder/0.1.2/build/static/js/form-builder.js"></script>
+<script src="/resource-server/webjars/uportal__form-builder/build/static/js/form-builder.js"></script>
 <form-builder
   fbms-base-url="/fbms"
   fbms-form-fname="<form.fname>"
@@ -131,16 +169,70 @@ Use a SimpleContentPortlet to publish the following HTML markup as a portlet:
 </form-builder>
 ```
 
-Replace `<form.fname>` with the `fname` of your form (in FBMS).
+Replace `<form.fname>` with the `fname` of your form (in FBMS). The form's `fname` can be found in its definition file.
+These were the files added to `data/quickstart/fbms/`.
+
+### Final Step: Provide uPortal's Signature Key to FBMS
+
+Finally, we need to provide the signature key that uPortal uses to sign the user's JWT for authentication.
+This is usually found in uPortal-start's `etc/portal/uPortal.properties` or may have been moved to `global.properties`
+in the same directory. It may be commented out to use the default, but the default entry should be there:
+```properties
+org.apereo.portal.soffit.jwt.signatureKey=CHANGEMEBx0myZ/pv/e7+xrdDLYGC1iIzSa6Uw5CPpH0KCCS1deESk3v+b+LYMz1ks57tjFb9vudpSCyRKXO5TeEBc45rfMyGtkRa1zri+hukZIAfgrvCbFixpCBxBusRs+uhXRuLxOe6k77VE+EMM4jVJArtNBgVPyV7iOC05kHNiYIGgs=
+```
+Again, this is the default. Your uPortal-start may have a different value.
+
+1. Copy this into `etc/portal/fbms.properties`.
+2. Copy this file into your $PORTAL_HOME directory, usually in uPortal-start at `./gradle/tomcat/portal/`
+3. Restart Tomcat
+
+This Completes the uPortal Setup Instructions
+
+---------------------------
 
 ### Running FBMS with `bootRun`
 
 It is sometimes helpful to run FBMS without uPortal for development purposes.  Use the Spring
 Boot Gradle Plugin to launch this project from a local clone of FBMS (this repository).
 
+#### Pre-Requisite: Database Setup
+
+Before using FBMS stand-alone, the database will need to be configured and a driver added as a dependency.
+
+1. The drive should be added to `fbms-webapp/build.gradle` at the end of the dependency section. There already exists
+a comment and example for HSQL. You may add any other database driver as needed as a `runtime` dependency.
+
+2. `fbms-webapp/src/main/resources/fbms.properties` should be edited to include database connection configuration.
+Other values may also require adjusting based on your needs.
+#### Starting FBMS Stand-Alone
+
 ```console
 $ ./gradlew fbms-webapp:bootRun
 ```
+#### Import/Export Features
+
+Apereo FBMS provides support for importing and exporting data from the console.  These features are
+tremendously useful for provisioning new environments and migrating data.
+
+##### Initializing the Database Schema
+
+Use the following command to drop (if necessary) and create the Hibernate-managed database tables:
+
+```bash
+$ ./gradlew assemble fbms-webapp:bootRunDataInit
+```
+
+##### Importing
+
+Use the following command to import all Form objects serialized into JSON files that are located in
+the `docs/examples` directory:
+
+```bash
+$ ./gradlew assemble fbms-webapp:bootRunDataImport
+```
+
+**NOTE:** The location of this directory is very likely to change or (even more likely) become a
+parameter in the future.  Check this document for changes.
 
 ## Configuration
 
@@ -190,31 +282,6 @@ org.apereo.portal.fbms.security.createAuthority=Portal Administrators, Forms Aut
 org.apereo.portal.fbms.security.updateAuthority=Portal Administrators, Forms Editors
 org.apereo.portal.fbms.security.deleteAuthority=Portal Administrators
 ```
-
-## Import/Export Features
-
-Apereo FBMS provides support for importing and exporting data from the console.  These features are
-tremendously useful for provisioning new environments and migrating data.
-
-### Initializing the Database Schema
-
-Use the following command to drop (if necessary) and create the Hibernate-managed database tables:
-
-```bash
-$ ./gradlew assemble fbms-webapp:bootRunDataInit
-```
-
-### Importing
-
-Use the following command to import all Form objects serialized into JSON files that are located in
-the `docs/examples` directory:
-
-```bash
-$ ./gradlew assemble fbms-webapp:bootRunDataImport
-```
-
-**NOTE:** The location of this directory is very likely to change or (even more likely) become a
-parameter in the future.  Check this document for changes.
 
 ## API Documentation
 
