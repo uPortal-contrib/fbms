@@ -1,7 +1,7 @@
 plugins {
 //    On hold:  https://github.com/drewwills/fbms/issues/34
 //    id "com.github.hierynomus.license" version "0.14.0"
-    id 'net.researchgate.release' version '2.6.0'
+    id 'net.researchgate.release' version '2.8.1'
 }
 
 apply plugin: 'java'
